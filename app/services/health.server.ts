@@ -339,6 +339,20 @@ export class HealthService {
       issues
     });
 
+    // Check if score is below threshold and alert email is set
+    if (store.settings?.minHealthScore && finalScore < store.settings.minHealthScore) {
+      if (store.settings.alertEmail) {
+        // Need to import EmailService dynamically or statically
+        const { EmailService } = await import("./email.server");
+        await EmailService.sendHealthAlertEmail({
+          toEmail: store.settings.alertEmail,
+          shopDomain: store.shop,
+          healthScore: finalScore,
+          totalIssues: issues.length,
+        });
+      }
+    }
+
     return scan;
   }
 }
