@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
@@ -30,7 +30,6 @@ import {
 } from "@shopify/polaris-icons";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import prisma from "../db.server";
 import { StoreRepository } from "../repositories/store.server";
 import { ScanRepository } from "../repositories/scan.server";
 import { HealthService } from "../services/health.server";
@@ -78,11 +77,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   });
 
+  const totalScans = (await ScanRepository.getScanHistory(store.id, 100)).length;
+
   return json({
     shop: session.shop,
     store,
     latestScan,
     categoryHealth,
+    totalScans,
     stats: {
       criticalCount,
       warningCount,
@@ -123,7 +125,7 @@ function getProgressTone(score: number): "success" | "highlight" | "critical" {
 }
 
 export default function Dashboard() {
-  const { shop, store, latestScan, categoryHealth, stats } = useLoaderData<typeof loader>();
+  const { shop, store, latestScan, categoryHealth, totalScans, stats } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const navigate = useNavigate();
@@ -153,6 +155,16 @@ export default function Dashboard() {
     { name: ISSUE_CATEGORIES.CONVERSION, icon: CartIcon, data: categoryHealth[ISSUE_CATEGORIES.CONVERSION] },
   ];
 
+  // Group issues by category to display in the detailed vertical list
+  const issuesByCategory = latestScan?.issues ? latestScan.issues.reduce((acc: Record<string, string[]>, issue: any) => {
+    const def = Object.values(ISSUE_DEF).find(d => d.type === issue.issueType);
+    if (def) {
+      if (!acc[def.category]) acc[def.category] = [];
+      if (!acc[def.category].includes(def.type)) acc[def.category].push(def.type);
+    }
+    return acc;
+  }, {}) : {};
+
   return (
     <Page fullWidth>
       <TitleBar title="Dashboard">
@@ -161,18 +173,15 @@ export default function Dashboard() {
 
       <BlockStack gap="600">
         
-        {/* HERO SECTION */}
+        {/* HERO SECTION - Simplified & Left-aligned */}
         <Box paddingBlockEnd="400">
           <Card background="bg-surface-secondary">
-            <BlockStack gap="400" align="center" inlineAlign="center">
-              <Text as="h1" variant="heading3xl" alignment="center">
+            <BlockStack gap="400" align="start">
+              <Text as="h1" variant="heading3xl">
                 Scan your Shopify store in under 30 seconds.
               </Text>
-              <Text as="p" variant="bodyLg" alignment="center" tone="subdued">
+              <Text as="p" variant="bodyLg" tone="subdued">
                 Find missing product information, SEO issues, catalog problems, and conversion blockers before they affect your sales.
-              </Text>
-              <Text as="p" variant="bodyMd" alignment="center" tone="subdued">
-                Get an instant Store Health Score with actionable recommendations. No AI. No complicated setup. Just fast, practical insights.
               </Text>
               <Box paddingBlockStart="200">
                 <Button size="large" variant="primary" onClick={handleScanNow} loading={isScanning} disabled={atLimit}>
@@ -195,10 +204,10 @@ export default function Dashboard() {
             <Card>
               <BlockStack gap="500">
                 <InlineStack align="space-between" blockAlign="center">
-                  <Text as="h2" variant="headingXl" fontWeight="bold">Store Health Score</Text>
+                  <Text as="h2" variant="headingXl" fontWeight="bold">Overall Catalog Health Score</Text>
                   <BlockStack gap="100" inlineAlign="end">
                     <Text as="p" variant="heading3xl">{healthScore} / 100</Text>
-                    <Badge tone={getScoreTone(healthScore)} size="large">{getScoreLabel(healthScore)}</Badge>
+                    <Badge tone={getScoreTone(healthScore)} size="large">{getScoreLabel(healthScore).toUpperCase()}</Badge>
                   </BlockStack>
                 </InlineStack>
 
@@ -206,29 +215,109 @@ export default function Dashboard() {
 
                 <Divider />
 
-                <Text as="h3" variant="headingLg" fontWeight="bold">Store Summary</Text>
-                
+                {/* ── Metric Tiles ── */}
                 <Grid>
-                  {categories.map(cat => (
-                    <Grid.Cell key={cat.name} columnSpan={{ xs: 6, sm: 6, md: 4, lg: 4, xl: 4 }}>
-                      <Box background="bg-surface-active" borderRadius="200" padding="400">
-                        <BlockStack gap="200" inlineAlign="center">
-                          <Icon source={cat.icon} tone="base" />
-                          <Text as="p" variant="headingMd">{cat.name}</Text>
-                          <InlineStack gap="100" blockAlign="center">
-                            <Icon 
-                              source={cat.data.status === "Healthy" ? CheckCircleIcon : AlertCircleIcon} 
-                              tone={cat.data.status === "Healthy" ? "success" : "warning"} 
-                            />
-                            <Text as="p" variant="bodyMd" tone={cat.data.status === "Healthy" ? "success" : "caution"}>
-                              {cat.data.status === "Healthy" ? "Good" : "Needs Attention"}
-                            </Text>
-                          </InlineStack>
-                        </BlockStack>
-                      </Box>
-                    </Grid.Cell>
-                  ))}
+                  <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
+                    <Box background="bg-surface-active" borderRadius="200" padding="400">
+                      <BlockStack gap="100" inlineAlign="center">
+                        <Text as="p" variant="heading3xl">{latestScan?.totalProductsChecked ?? 0}</Text>
+                        <Text as="p" variant="bodySm" tone="subdued">Products Audited</Text>
+                      </BlockStack>
+                    </Box>
+                  </Grid.Cell>
+                  <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
+                    <Box background={latestScan?.totalIssuesFound ? "bg-surface-critical-active" : "bg-surface-success"} borderRadius="200" padding="400">
+                      <BlockStack gap="100" inlineAlign="center">
+                        <Text as="p" variant="heading3xl" tone={latestScan?.totalIssuesFound ? "critical" : "success"}>
+                          {latestScan?.totalIssuesFound ?? 0}
+                        </Text>
+                        <Text as="p" variant="bodySm" tone="subdued">Active Defects</Text>
+                      </BlockStack>
+                    </Box>
+                  </Grid.Cell>
+                  <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
+                    <Box background="bg-surface-active" borderRadius="200" padding="400">
+                      <BlockStack gap="100" inlineAlign="center">
+                        <Text as="p" variant="heading3xl">{totalScans}</Text>
+                        <Text as="p" variant="bodySm" tone="subdued">Total Audits Run</Text>
+                      </BlockStack>
+                    </Box>
+                  </Grid.Cell>
                 </Grid>
+
+                <InlineStack gap="300">
+                  <Button variant="primary" loading={isScanning} onClick={handleScanNow} icon={RefreshIcon} disabled={atLimit} size="large">
+                    {isScanning ? "Scanning Store…" : "Run Full Audit"}
+                  </Button>
+                  <Button size="large" onClick={() => navigate("/app/issues")} icon={AlertCircleIcon}>
+                    {`View All Issues (${latestScan?.totalIssuesFound ?? 0})`}
+                  </Button>
+                </InlineStack>
+
+                <Box paddingBlockStart="400">
+                  <Divider />
+                </Box>
+
+                <Text as="h3" variant="headingLg" fontWeight="bold">Detailed Store Summary</Text>
+                
+                {/* ── Vertical Store Summary ── */}
+                <BlockStack gap="400">
+                  {categories.map(cat => {
+                    const hasIssues = cat.data.status !== "Healthy";
+                    const activeIssueTypes = issuesByCategory[cat.name] || [];
+                    
+                    return (
+                      <Card key={cat.name} background={hasIssues ? "bg-surface-warning-active" : "bg-surface"}>
+                        <BlockStack gap="300">
+                          <InlineStack align="space-between" blockAlign="center">
+                            <InlineStack gap="200" blockAlign="center">
+                              <Icon source={cat.icon} tone="base" />
+                              <Text as="h3" variant="headingMd" fontWeight="bold">{cat.name}</Text>
+                            </InlineStack>
+                            <Badge tone={hasIssues ? "warning" : "success"} size="large">
+                              {hasIssues ? "Needs Attention" : "Good"}
+                            </Badge>
+                          </InlineStack>
+
+                          {hasIssues && activeIssueTypes.length > 0 && (
+                            <Box paddingBlockStart="200">
+                              <Divider />
+                              <Box paddingBlockStart="300">
+                                <BlockStack gap="400">
+                                  {activeIssueTypes.map((type: string) => {
+                                    const def = Object.values(ISSUE_DEF).find(d => d.type === type);
+                                    if (!def) return null;
+                                    return (
+                                      <BlockStack gap="200" key={type}>
+                                        <InlineStack gap="200" blockAlign="center">
+                                          <Icon source={AlertCircleIcon} tone="critical" />
+                                          <Text as="p" variant="bodyMd" fontWeight="bold">
+                                            {type.replace(/_/g, " ")}
+                                          </Text>
+                                        </InlineStack>
+                                        <Box paddingInlineStart="600">
+                                          <Text as="p" variant="bodySm" tone="subdued">
+                                            <Text as="span" fontWeight="bold">Why it matters: </Text>
+                                            {def.message}
+                                          </Text>
+                                          <Box paddingBlockStart="200">
+                                            <Button variant="plain" onClick={() => navigate("/app/issues")}>
+                                              View affected products and fix →
+                                            </Button>
+                                          </Box>
+                                        </Box>
+                                      </BlockStack>
+                                    );
+                                  })}
+                                </BlockStack>
+                              </Box>
+                            </Box>
+                          )}
+                        </BlockStack>
+                      </Card>
+                    );
+                  })}
+                </BlockStack>
               </BlockStack>
             </Card>
           </Layout.Section>
@@ -263,14 +352,14 @@ export default function Dashboard() {
                   <InlineStack align="space-between">
                     <InlineStack gap="100"><Icon source={CheckCircleIcon} tone="success"/><Text as="p" variant="bodyMd">Healthy Checks</Text></InlineStack>
                     <Text as="p" variant="headingMd" tone="success">
-                      {/* Assuming healthy checks = total checks - issues, roughly (products * categories) - issues */}
                       {Math.max(0, ((latestScan?.totalProductsChecked ?? 0) * 5) - (latestScan?.totalIssuesFound ?? 0))}
                     </Text>
                   </InlineStack>
                 </BlockStack>
               </Card>
 
-              {/* ROADMAP CARD */}
+              {/* ROADMAP CARD (HIDDEN FOR NOW) */}
+              {/*
               <Card>
                 <BlockStack gap="400">
                   <InlineStack align="space-between" blockAlign="center">
@@ -288,6 +377,7 @@ export default function Dashboard() {
                   </BlockStack>
                 </BlockStack>
               </Card>
+              */}
             </BlockStack>
           </Layout.Section>
         </Layout>
