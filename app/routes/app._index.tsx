@@ -179,40 +179,41 @@ export default function Dashboard() {
         
         {/* HERO SECTION */}
         <div style={{
-          backgroundColor: '#ffffff',
+          background: 'url(/images/shopify-top-left.png) no-repeat center center',
+          backgroundSize: 'cover',
           borderRadius: '12px',
           border: '1px solid #e1e3e5',
           display: 'flex',
           justifyContent: 'space-between',
-          padding: '32px 40px',
+          padding: '40px 40px',
           position: 'relative',
           overflow: 'hidden',
-          minHeight: '220px',
+          minHeight: '260px',
           boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
         }}>
           <div style={{ zIndex: 2, maxWidth: '550px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <span style={{ 
-                background: '#eef3fa', 
+                background: '#f4f6fa', 
                 color: '#2c6ecb', 
-                padding: '4px 8px', 
-                borderRadius: '12px', 
+                padding: '4px 10px', 
+                borderRadius: '16px', 
                 fontSize: '12px', 
                 fontWeight: 600,
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px'
+                gap: '6px'
               }}>
                 <div style={{ width: '12px', height: '12px' }}><Icon source={CheckCircleIcon} tone="info" /></div> Keep your store healthy
               </span>
             </div>
             <Text as="h1" variant="heading3xl" fontWeight="bold">
-              Scan your Shopify store in <br />under <span style={{color: '#2c6ecb'}}>30 seconds.</span>
+              Scan your Shopify store <br />in under <span style={{color: '#2c6ecb'}}>30 seconds.</span>
             </Text>
             <Text as="p" tone="subdued" variant="bodyMd">
-              Find missing product information, SEO issues, catalog problems, and conversion blockers before they affect your sales.
+              Find missing product information, SEO issues, catalog problems, <br />and conversion blockers before they affect your sales.
             </Text>
-            <div style={{ marginTop: '4px', display: 'flex', gap: '12px' }}>
+            <div style={{ marginTop: '8px', display: 'flex', gap: '12px' }}>
                <button 
                  onClick={handleScanNow} 
                  disabled={isScanning || atLimit}
@@ -228,27 +229,11 @@ export default function Dashboard() {
                  }}>
                  {isScanning ? 'Scanning...' : 'Start Free Scan'}
                </button>
-               <Button onClick={() => navigate("/app/features")} icon={SearchIcon}>
+               <Button onClick={() => navigate("/app/features")} >
                  How It Works
                </Button>
             </div>
           </div>
-          {/* Hero Image on the right */}
-          <img 
-            src="/images/shopify-top-left.png" 
-            alt="Hero Background" 
-            style={{ 
-              position: 'absolute', 
-              right: '0', 
-              top: '50%',
-              transform: 'translateY(-50%)', 
-              height: '100%', 
-              width: 'auto', 
-              objectFit: 'contain',
-              zIndex: 1,
-              pointerEvents: 'none'
-            }} 
-          />
         </div>
 
         {atLimit && (
@@ -265,9 +250,11 @@ export default function Dashboard() {
               {/* STORE HEALTH SCORE CARD */}
               <CardContainer padding="0">
                 <div style={{ padding: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
                      <Text as="h2" variant="headingSm" fontWeight="bold">Store Health Score</Text>
-                     <Icon source={InfoIcon} tone="subdued" />
+                     <span style={{ marginLeft: 0 }}>
+    <Icon source={InfoIcon} tone="subdued" />
+  </span>
                   </div>
                   <div style={{ borderBottom: '1px solid #f4f6f8', marginTop: '12px' }}></div>
                   
@@ -455,7 +442,7 @@ export default function Dashboard() {
                        <Text as="h2" variant="headingSm" fontWeight="bold">Store & Plan Status</Text>
                        <span style={{ background: '#e6f0ff', color: '#2c6ecb', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>PRO</span>
                     </div>
-                    <Icon source={MenuIcon} tone="subdued" />
+                    {/* <Icon source={MenuIcon} tone="subdued" /> */}
                  </div>
 
                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
