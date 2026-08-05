@@ -1,7 +1,7 @@
 // ============================================================================
 // 📧 RESEND EMAIL SERVICE (`app/services/email.server.ts`)
 // ============================================================================
-// Senior Staff Engineer level transactional emails for Shop Health SaaS:
+// Senior Staff Engineer level transactional emails for Storefront Health SaaS:
 // 1. Subscription Welcome / Plan Upgrade Confirmation Email
 // 2. Plan Downgrade / Expiration Notice Email
 // 3. Low Health Score Alert Email
@@ -12,7 +12,7 @@ import { Resend } from "resend";
 const resendApiKey = process.env.RESEND_API_KEY || "re_test_key";
 const resend = new Resend(resendApiKey);
 
-const getEmailFrom = () => process.env.EMAIL_FROM || "Shop Health <mppsc@zenscroll.app>";
+const getEmailFrom = () => process.env.EMAIL_FROM || "Storefront Health <mppsc@zenscroll.app>";
 
 export class EmailService {
   /**
@@ -61,7 +61,7 @@ export class EmailService {
       <div class="card">
         <div class="badge">👑 PRO SUBSCRIPTION ACTIVE 🚀</div>
         
-        <h1 class="title">Thank You For Upgrading <span>Shop Health!</span></h1>
+        <h1 class="title">Thank You For Upgrading <span>Storefront Health!</span></h1>
         
         <div class="content">
           <p>Great news! Store <strong>${shopDomain}</strong> is now officially upgraded to <strong>${planName}</strong>!</p>
@@ -89,10 +89,10 @@ export class EmailService {
           </tr>
         </table>
 
-        <a href="https://${shopDomain}/admin/apps" class="btn">Open Shop Health Dashboard &rarr;</a>
+        <a href="https://${shopDomain}/admin/apps" class="btn">Open Storefront Health Dashboard &rarr;</a>
 
         <div class="footer">
-          <p>© 2026 Shop Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
+          <p>© 2026 Storefront Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
         </div>
       </div>
     </body>
@@ -108,7 +108,7 @@ export class EmailService {
       const response = await resend.emails.send({
         from: getEmailFrom(),
         to: [toEmail],
-        subject: `🎉 Subscription Active: Welcome to Shop Health ${planName}!`,
+        subject: `🎉 Subscription Active: Welcome to Storefront Health ${planName}!`,
         html: htmlContent,
       });
 
@@ -156,7 +156,7 @@ export class EmailService {
       <div class="card">
         <div class="badge">⚠️ PLAN DOWNGRADED</div>
         
-        <h1 class="title">Notice: Shop Health Subscription Plan Changed</h1>
+        <h1 class="title">Notice: Storefront Health Subscription Plan Changed</h1>
         
         <div class="content">
           <p>Your subscription for store <strong>${shopDomain}</strong> has been cancelled or transitioned back to the <strong>Starter Free Plan</strong>.</p>
@@ -179,7 +179,7 @@ export class EmailService {
         <a href="https://${shopDomain}/admin/apps" class="btn">Reactivate Subscription &rarr;</a>
 
         <div class="footer">
-          <p>© 2026 Shop Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
+          <p>© 2026 Storefront Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
         </div>
       </div>
     </body>
@@ -195,7 +195,7 @@ export class EmailService {
       const response = await resend.emails.send({
         from: getEmailFrom(),
         to: [toEmail],
-        subject: `⚠️ Notice: Shop Health Subscription Plan Downgraded`,
+        subject: `⚠️ Notice: Storefront Health Subscription Plan Downgraded`,
         html: htmlContent,
       });
 
@@ -269,7 +269,7 @@ export class EmailService {
         <a href="https://${shopDomain}/admin/apps" class="btn">View & Fix Product Defects &rarr;</a>
 
         <div class="footer">
-          <p>© 2026 Shop Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
+          <p>© 2026 Storefront Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
         </div>
       </div>
     </body>
