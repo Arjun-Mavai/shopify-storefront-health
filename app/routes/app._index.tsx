@@ -27,6 +27,7 @@ import {
   TextIcon,
   ProductIcon,
   CartIcon,
+  OrderIcon,
 } from "@shopify/polaris-icons";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -52,25 +53,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     [ISSUE_CATEGORIES.CONVERSION]: { issues: 0, status: "Healthy" },
   };
 
-  let criticalCount = 0;
-  let warningCount = 0;
-  let infoCount = 0;
-
   if (latestScan?.issues) {
     latestScan.issues.forEach(issue => {
-      // Find category
       const def = Object.values(ISSUE_DEF).find(d => d.type === issue.issueType);
       if (def) {
         categoryHealth[def.category as keyof typeof categoryHealth].issues++;
       }
-
-      if (issue.severity === "HIGH") criticalCount++;
-      else if (issue.severity === "MEDIUM") warningCount++;
-      else infoCount++;
     });
   }
 
-  // Determine status based on issues
   (Object.keys(categoryHealth) as Array<keyof typeof categoryHealth>).forEach(cat => {
     if (categoryHealth[cat].issues > 0) {
       categoryHealth[cat].status = "Needs Attention";
@@ -85,11 +76,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     latestScan,
     categoryHealth,
     totalScans,
-    stats: {
-      criticalCount,
-      warningCount,
-      infoCount,
-    }
+    plan: store.subscription?.plan || "FREE",
   });
 };
 
@@ -106,26 +93,25 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return json({ success: false });
 };
 
-function getScoreTone(score: number): "success" | "warning" | "critical" {
+function getBadgeScoreTone(score: number): "success" | "warning" | "critical" {
   if (score >= 80) return "success";
   if (score >= 50) return "warning";
   return "critical";
 }
 
-function getScoreLabel(score: number): string {
-  if (score >= 80) return "Healthy";
-  if (score >= 50) return "Needs Attention";
-  return "Critical";
-}
-
-function getProgressTone(score: number): "success" | "highlight" | "critical" {
+function getTextScoreTone(score: number): "success" | "caution" | "critical" {
   if (score >= 80) return "success";
-  if (score >= 50) return "highlight";
+  if (score >= 50) return "caution";
   return "critical";
 }
 
+function getPlanTone(plan: string): "success" | "info" | "critical" {
+  if (plan === "PRO") return "info";
+  return "success";
+}
+
 export default function Dashboard() {
-  const { shop, store, latestScan, categoryHealth, totalScans, stats } = useLoaderData<typeof loader>();
+  const { shop, store, latestScan, categoryHealth, totalScans, plan } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const navigate = useNavigate();
@@ -148,22 +134,12 @@ export default function Dashboard() {
   };
 
   const categories = [
-    { name: ISSUE_CATEGORIES.IMAGES, icon: ImageIcon, data: categoryHealth[ISSUE_CATEGORIES.IMAGES] },
-    { name: ISSUE_CATEGORIES.SEO, icon: SearchIcon, data: categoryHealth[ISSUE_CATEGORIES.SEO] },
-    { name: ISSUE_CATEGORIES.PRODUCT_CONTENT, icon: TextIcon, data: categoryHealth[ISSUE_CATEGORIES.PRODUCT_CONTENT] },
-    { name: ISSUE_CATEGORIES.CATALOG, icon: ProductIcon, data: categoryHealth[ISSUE_CATEGORIES.CATALOG] },
-    { name: ISSUE_CATEGORIES.CONVERSION, icon: CartIcon, data: categoryHealth[ISSUE_CATEGORIES.CONVERSION] },
+    { name: ISSUE_CATEGORIES.IMAGES, icon: ImageIcon, data: categoryHealth[ISSUE_CATEGORIES.IMAGES], param: "Images" },
+    { name: ISSUE_CATEGORIES.SEO, icon: SearchIcon, data: categoryHealth[ISSUE_CATEGORIES.SEO], param: "SEO" },
+    { name: ISSUE_CATEGORIES.PRODUCT_CONTENT, icon: TextIcon, data: categoryHealth[ISSUE_CATEGORIES.PRODUCT_CONTENT], param: "Product Content" },
+    { name: ISSUE_CATEGORIES.CATALOG, icon: ProductIcon, data: categoryHealth[ISSUE_CATEGORIES.CATALOG], param: "Catalog" },
+    { name: ISSUE_CATEGORIES.CONVERSION, icon: CartIcon, data: categoryHealth[ISSUE_CATEGORIES.CONVERSION], param: "Conversion" },
   ];
-
-  // Group issues by category to display in the detailed vertical list
-  const issuesByCategory = latestScan?.issues ? latestScan.issues.reduce((acc: Record<string, string[]>, issue: any) => {
-    const def = Object.values(ISSUE_DEF).find(d => d.type === issue.issueType);
-    if (def) {
-      if (!acc[def.category]) acc[def.category] = [];
-      if (!acc[def.category].includes(def.type)) acc[def.category].push(def.type);
-    }
-    return acc;
-  }, {}) : {};
 
   return (
     <Page fullWidth>
@@ -173,7 +149,7 @@ export default function Dashboard() {
 
       <BlockStack gap="600">
         
-        {/* HERO SECTION - Simplified & Left-aligned */}
+        {/* HERO SECTION */}
         <Box paddingBlockEnd="400">
           <Card background="bg-surface-secondary">
             <BlockStack gap="400" align="start">
@@ -199,185 +175,182 @@ export default function Dashboard() {
         )}
 
         <Layout>
-          {/* MAIN HEALTH SCORE CARD */}
+          {/* LEFT COLUMN */}
           <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <InlineStack align="space-between" blockAlign="center">
-                  <Text as="h2" variant="headingXl" fontWeight="bold">Overall Catalog Health Score</Text>
-                  <BlockStack gap="100" inlineAlign="end">
-                    <Text as="p" variant="heading3xl">{healthScore} / 100</Text>
-                    <Badge tone={getScoreTone(healthScore)} size="large">{getScoreLabel(healthScore).toUpperCase()}</Badge>
-                  </BlockStack>
-                </InlineStack>
-
-                <ProgressBar progress={healthScore} tone={getProgressTone(healthScore)} size="large" />
-
-                <Divider />
-
-                {/* ── Metric Tiles ── */}
-                <Grid>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
-                    <Box background="bg-surface-active" borderRadius="200" padding="400">
-                      <BlockStack gap="100" inlineAlign="center">
-                        <Text as="p" variant="heading3xl">{latestScan?.totalProductsChecked ?? 0}</Text>
-                        <Text as="p" variant="bodySm" tone="subdued">Products Audited</Text>
-                      </BlockStack>
-                    </Box>
-                  </Grid.Cell>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
-                    <Box background={latestScan?.totalIssuesFound ? "bg-surface-critical-active" : "bg-surface-success"} borderRadius="200" padding="400">
-                      <BlockStack gap="100" inlineAlign="center">
-                        <Text as="p" variant="heading3xl" tone={latestScan?.totalIssuesFound ? "critical" : "success"}>
-                          {latestScan?.totalIssuesFound ?? 0}
-                        </Text>
-                        <Text as="p" variant="bodySm" tone="subdued">Active Defects</Text>
-                      </BlockStack>
-                    </Box>
-                  </Grid.Cell>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
-                    <Box background="bg-surface-active" borderRadius="200" padding="400">
-                      <BlockStack gap="100" inlineAlign="center">
-                        <Text as="p" variant="heading3xl">{totalScans}</Text>
-                        <Text as="p" variant="bodySm" tone="subdued">Total Audits Run</Text>
-                      </BlockStack>
-                    </Box>
-                  </Grid.Cell>
-                </Grid>
-
-                <InlineStack gap="300">
-                  <Button variant="primary" loading={isScanning} onClick={handleScanNow} icon={RefreshIcon} disabled={atLimit} size="large">
-                    {isScanning ? "Scanning Store…" : "Run Full Audit"}
-                  </Button>
-                  <Button size="large" onClick={() => navigate("/app/issues")} icon={AlertCircleIcon}>
-                    {`View All Issues (${latestScan?.totalIssuesFound ?? 0})`}
-                  </Button>
-                </InlineStack>
-
-                <Box paddingBlockStart="400">
-                  <Divider />
-                </Box>
-
-                <Text as="h3" variant="headingLg" fontWeight="bold">Detailed Store Summary</Text>
-                
-                {/* ── Vertical Store Summary ── */}
-                <BlockStack gap="400">
-                  {categories.map(cat => {
-                    const hasIssues = cat.data.status !== "Healthy";
-                    const activeIssueTypes = issuesByCategory[cat.name] || [];
-                    
-                    return (
-                      <Card key={cat.name} background={hasIssues ? "bg-surface-warning-active" : "bg-surface"}>
-                        <BlockStack gap="300">
-                          <InlineStack align="space-between" blockAlign="center">
-                            <InlineStack gap="200" blockAlign="center">
-                              <Icon source={cat.icon} tone="base" />
-                              <Text as="h3" variant="headingMd" fontWeight="bold">{cat.name}</Text>
-                            </InlineStack>
-                            <Badge tone={hasIssues ? "warning" : "success"} size="large">
-                              {hasIssues ? "Needs Attention" : "Good"}
-                            </Badge>
-                          </InlineStack>
-
-                          {hasIssues && activeIssueTypes.length > 0 && (
-                            <Box paddingBlockStart="200">
-                              <Divider />
-                              <Box paddingBlockStart="300">
-                                <BlockStack gap="400">
-                                  {activeIssueTypes.map((type: string) => {
-                                    const def = Object.values(ISSUE_DEF).find(d => d.type === type);
-                                    if (!def) return null;
-                                    return (
-                                      <BlockStack gap="200" key={type}>
-                                        <InlineStack gap="200" blockAlign="center">
-                                          <Icon source={AlertCircleIcon} tone="critical" />
-                                          <Text as="p" variant="bodyMd" fontWeight="bold">
-                                            {type.replace(/_/g, " ")}
-                                          </Text>
-                                        </InlineStack>
-                                        <Box paddingInlineStart="600">
-                                          <Text as="p" variant="bodySm" tone="subdued">
-                                            <Text as="span" fontWeight="bold">Why it matters: </Text>
-                                            {def.message}
-                                          </Text>
-                                          <Box paddingBlockStart="200">
-                                            <Button variant="plain" onClick={() => navigate("/app/issues")}>
-                                              View affected products and fix →
-                                            </Button>
-                                          </Box>
-                                        </Box>
-                                      </BlockStack>
-                                    );
-                                  })}
-                                </BlockStack>
-                              </Box>
-                            </Box>
-                          )}
+            <BlockStack gap="500">
+              {/* STORE HEALTH CARD */}
+              <Card>
+                <BlockStack gap="500">
+                  <Text as="h2" variant="headingXl" fontWeight="bold">Store Health Score</Text>
+                  
+                  <InlineStack align="space-between" blockAlign="center">
+                    {/* Big Score */}
+                    <BlockStack gap="200" inlineAlign="center">
+                      <Box padding="400" background="bg-surface-active" borderRadius="300" minWidth="200px">
+                        <BlockStack gap="200" inlineAlign="center">
+                          <Text as="p" variant="heading3xl" tone={getTextScoreTone(healthScore)}>
+                            {healthScore} / 100
+                          </Text>
+                          <Badge tone={getBadgeScoreTone(healthScore)} size="large">
+                            {healthScore >= 80 ? "Healthy" : healthScore >= 50 ? "Needs Attention" : "Critical"}
+                          </Badge>
                         </BlockStack>
-                      </Card>
-                    );
-                  })}
+                      </Box>
+                    </BlockStack>
+
+                    {/* Category List */}
+                    <Box padding="400" background="bg-surface" borderRadius="200" minWidth="300px">
+                      <BlockStack gap="300">
+                        {categories.map(cat => {
+                          const hasIssues = cat.data.status !== "Healthy";
+                          return (
+                            <div key={cat.name} onClick={() => navigate(`/app/issues?category=${encodeURIComponent(cat.param)}`)} style={{ cursor: "pointer" }}>
+                              <InlineStack align="space-between" blockAlign="center">
+                                <Text as="p" variant="bodyLg" fontWeight={hasIssues ? "bold" : "regular"}>{cat.name}</Text>
+                                <InlineStack gap="200" blockAlign="center">
+                                  {hasIssues && <Text as="p" variant="bodySm" tone="subdued">{cat.data.issues} issues</Text>}
+                                  {hasIssues ? "⚠️" : "✅"}
+                                </InlineStack>
+                              </InlineStack>
+                            </div>
+                          );
+                        })}
+                      </BlockStack>
+                    </Box>
+                  </InlineStack>
+                  
+                  <Box paddingBlockStart="200">
+                     <Button size="large" onClick={() => navigate("/app/issues")} fullWidth>
+                      Improve Store Score →
+                     </Button>
+                  </Box>
                 </BlockStack>
-              </BlockStack>
-            </Card>
+              </Card>
+
+              {/* ── Metric Tiles ── */}
+              <Grid>
+                <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
+                  <Box background="bg-surface-active" borderRadius="200" padding="400">
+                    <BlockStack gap="100" inlineAlign="center">
+                      <Text as="p" variant="heading3xl">{latestScan?.totalProductsChecked ?? 0}</Text>
+                      <Text as="p" variant="bodySm" tone="subdued">Products Audited</Text>
+                    </BlockStack>
+                  </Box>
+                </Grid.Cell>
+                <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
+                  <Box background={latestScan?.totalIssuesFound ? "bg-surface-critical-active" : "bg-surface-success"} borderRadius="200" padding="400">
+                    <BlockStack gap="100" inlineAlign="center">
+                      <Text as="p" variant="heading3xl" tone={latestScan?.totalIssuesFound ? "critical" : "success"}>
+                        {latestScan?.totalIssuesFound ?? 0}
+                      </Text>
+                      <Text as="p" variant="bodySm" tone="subdued">Active Defects</Text>
+                    </BlockStack>
+                  </Box>
+                </Grid.Cell>
+                <Grid.Cell columnSpan={{ xs: 6, sm: 4, md: 4, lg: 4, xl: 4 }}>
+                  <Box background="bg-surface-active" borderRadius="200" padding="400">
+                    <BlockStack gap="100" inlineAlign="center">
+                      <Text as="p" variant="heading3xl">{totalScans}</Text>
+                      <Text as="p" variant="bodySm" tone="subdued">Total Audits Run</Text>
+                    </BlockStack>
+                  </Box>
+                </Grid.Cell>
+              </Grid>
+
+              <InlineStack gap="300">
+                <Button variant="primary" loading={isScanning} onClick={handleScanNow} icon={RefreshIcon} disabled={atLimit} size="large">
+                  {isScanning ? "Scanning Store…" : "Run Full Audit"}
+                </Button>
+                <Button size="large" onClick={() => navigate("/app/issues")} icon={AlertCircleIcon}>
+                  {`View All Issues (${latestScan?.totalIssuesFound ?? 0})`}
+                </Button>
+              </InlineStack>
+            </BlockStack>
           </Layout.Section>
 
-          {/* SIDEBAR METRICS */}
+          {/* RIGHT COLUMN */}
           <Layout.Section variant="oneThird">
             <BlockStack gap="400">
+              {/* Store & Plan Status */}
               <Card>
-                <BlockStack gap="400">
-                  <Text as="h2" variant="headingLg" fontWeight="bold">Scan Overview</Text>
+                <BlockStack gap="300">
+                  <Text as="h2" variant="headingMd" fontWeight="bold">
+                    Store & Plan Status
+                  </Text>
                   <Divider />
-                  
-                  <InlineStack align="space-between">
-                    <Text as="p" variant="bodyMd">Products Scanned</Text>
-                    <Text as="p" variant="headingMd">{latestScan?.totalProductsChecked ?? 0}</Text>
-                  </InlineStack>
-                  <InlineStack align="space-between">
-                    <Text as="p" variant="bodyMd">Issues Found</Text>
-                    <Text as="p" variant="headingMd">{latestScan?.totalIssuesFound ?? 0}</Text>
-                  </InlineStack>
-                  
-                  <Divider />
-                  
-                  <InlineStack align="space-between">
-                    <InlineStack gap="100"><Icon source={AlertCircleIcon} tone="critical"/><Text as="p" variant="bodyMd">Critical</Text></InlineStack>
-                    <Text as="p" variant="headingMd" tone="critical">{stats.criticalCount}</Text>
-                  </InlineStack>
-                  <InlineStack align="space-between">
-                    <InlineStack gap="100"><Icon source={AlertCircleIcon} tone="warning"/><Text as="p" variant="bodyMd">Warnings</Text></InlineStack>
-                    <Text as="p" variant="headingMd" tone="caution">{stats.warningCount}</Text>
-                  </InlineStack>
-                  <InlineStack align="space-between">
-                    <InlineStack gap="100"><Icon source={CheckCircleIcon} tone="success"/><Text as="p" variant="bodyMd">Healthy Checks</Text></InlineStack>
-                    <Text as="p" variant="headingMd" tone="success">
-                      {Math.max(0, ((latestScan?.totalProductsChecked ?? 0) * 5) - (latestScan?.totalIssuesFound ?? 0))}
-                    </Text>
-                  </InlineStack>
+
+                  <BlockStack gap="200">
+                    <InlineStack align="space-between">
+                      <Text as="p" variant="bodySm" tone="subdued">Store</Text>
+                      <Text as="p" variant="bodySm" fontWeight="semibold">
+                        {store.name || shop.split(".")[0]}
+                      </Text>
+                    </InlineStack>
+
+                    <InlineStack align="space-between">
+                      <Text as="p" variant="bodySm" tone="subdued">Current Plan</Text>
+                      <Badge tone={getPlanTone(plan)}>{plan}</Badge>
+                    </InlineStack>
+
+                    <InlineStack align="space-between">
+                      <Text as="p" variant="bodySm" tone="subdued">Scans Used</Text>
+                      <Text as="p" variant="bodySm" fontWeight="semibold">
+                        {scansUsed} / {scanLimit}
+                      </Text>
+                    </InlineStack>
+
+                    <ProgressBar
+                      progress={Math.round((scansUsed / scanLimit) * 100)}
+                      tone={scansUsed >= scanLimit ? "critical" : "primary"}
+                    />
+
+                    <InlineStack align="space-between">
+                      <Text as="p" variant="bodySm" tone="subdued">Auto-Scan</Text>
+                      <Badge tone={store.settings?.autoScanEnabled ? "success" : "new"}>
+                        {store.settings?.autoScanEnabled ? "Enabled" : "Disabled"}
+                      </Badge>
+                    </InlineStack>
+
+                    <InlineStack align="space-between">
+                      <Text as="p" variant="bodySm" tone="subdued">Frequency</Text>
+                      <Text as="p" variant="bodySm" fontWeight="semibold">
+                        {store.settings?.scanFrequency ?? "Weekly"}
+                      </Text>
+                    </InlineStack>
+                  </BlockStack>
+
+                  <Box paddingBlockStart="100">
+                    <Button
+                      variant={plan === "FREE" ? "primary" : "secondary"}
+                      onClick={() => navigate("/app/billing")}
+                      fullWidth
+                    >
+                      {plan === "FREE" ? "Upgrade to Pro →" : "Manage Billing"}
+                    </Button>
+                  </Box>
                 </BlockStack>
               </Card>
 
-              {/* ROADMAP CARD (HIDDEN FOR NOW) */}
-              {/*
+              {/* Quick Links Card */}
               <Card>
-                <BlockStack gap="400">
-                  <InlineStack align="space-between" blockAlign="center">
-                    <Text as="h2" variant="headingLg" fontWeight="bold">Future Roadmap</Text>
-                    <Badge tone="new">Coming Soon</Badge>
-                  </InlineStack>
+                <BlockStack gap="300">
+                  <Text as="h2" variant="headingMd" fontWeight="bold">
+                    Quick Navigation
+                  </Text>
                   <Divider />
                   <BlockStack gap="200">
-                    <Text as="p" variant="bodyMd">• Bulk Fix</Text>
-                    <Text as="p" variant="bodyMd">• AI SEO Suggestions</Text>
-                    <Text as="p" variant="bodyMd">• Alt Text Generator</Text>
-                    <Text as="p" variant="bodyMd">• Description Generator</Text>
-                    <Text as="p" variant="bodyMd">• Bulk Meta Updates</Text>
-                    <Text as="p" variant="bodyMd">• Weekly Scheduled Scans</Text>
+                    <Button fullWidth onClick={() => navigate("/app/issues")} icon={AlertCircleIcon} textAlign="left">
+                      View All Product Issues
+                    </Button>
+                    <Button fullWidth onClick={() => navigate("/app/scans")} icon={OrderIcon} textAlign="left">
+                      Scan History & Logs
+                    </Button>
+                    <Button fullWidth onClick={() => navigate("/app/settings")} icon={ProductIcon} textAlign="left">
+                      App Settings
+                    </Button>
                   </BlockStack>
                 </BlockStack>
               </Card>
-              */}
             </BlockStack>
           </Layout.Section>
         </Layout>

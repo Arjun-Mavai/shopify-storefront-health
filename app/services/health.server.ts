@@ -290,26 +290,55 @@ export class HealthService {
     }
 
     const totalProducts = products.length;
-    const calcCategoryScore = (issuesCount: number) => {
-      if (totalProducts === 0) return 20;
-      return Math.max(0, Math.round(20 - ((issuesCount / totalProducts) * 20)));
+    
+    // Custom Scoring Rule Engine (100 Points Total)
+    const rulePoints = {
+      altText: 10,
+      metaTitle: 10,
+      metaDescription: 10,
+      description: 15,
+      images: 15,
+      duplicateSku: 10,
+      tags: 10,
+      vendor: 5,
+      productType: 5,
+      availability: 10
     };
 
-    const s_images = calcCategoryScore(categoryIssuesCount[ISSUE_CATEGORIES.IMAGES]);
-    const s_content = calcCategoryScore(categoryIssuesCount[ISSUE_CATEGORIES.PRODUCT_CONTENT]);
-    const s_seo = calcCategoryScore(categoryIssuesCount[ISSUE_CATEGORIES.SEO]);
-    const s_catalog = calcCategoryScore(categoryIssuesCount[ISSUE_CATEGORIES.CATALOG]);
-    const s_conversion = calcCategoryScore(categoryIssuesCount[ISSUE_CATEGORIES.CONVERSION]);
+    let totalScore = 100;
 
-    const calculatedScore = totalProducts === 0 ? 100 : (s_images + s_content + s_seo + s_catalog + s_conversion);
+    if (totalProducts > 0) {
+      // Calculate unique products failing each rule
+      const getFailRate = (issueTypes: string[]) => {
+        const failingProducts = new Set(
+          issues.filter(i => issueTypes.includes(i.issueType)).map(i => i.productId)
+        );
+        return failingProducts.size / totalProducts;
+      };
 
-    return ScanRepository.saveScanResult({
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_ALT_TEXT.type]) * rulePoints.altText;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_SEO_TITLE.type, ISSUE_DEF.LONG_TITLE.type, ISSUE_DEF.SHORT_TITLE.type]) * rulePoints.metaTitle;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_META_DESCRIPTION.type]) * rulePoints.metaDescription;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_DESCRIPTION.type, ISSUE_DEF.THIN_DESCRIPTION.type]) * rulePoints.description;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_IMAGES.type, ISSUE_DEF.LOW_RESOLUTION.type, ISSUE_DEF.INCONSISTENT_ASPECT_RATIO.type]) * rulePoints.images;
+      totalScore -= getFailRate([ISSUE_DEF.DUPLICATE_SKU.type]) * rulePoints.duplicateSku;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_TAGS.type]) * rulePoints.tags;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_VENDOR.type]) * rulePoints.vendor;
+      totalScore -= getFailRate([ISSUE_DEF.MISSING_PRODUCT_TYPE.type]) * rulePoints.productType;
+      totalScore -= getFailRate([ISSUE_DEF.OUT_OF_STOCK.type]) * rulePoints.availability;
+    }
+
+    const finalScore = Math.max(0, Math.round(totalScore));
+
+    const scan = await ScanRepository.saveScanResult({
       storeId: store.id,
-      healthScore: calculatedScore,
+      healthScore: finalScore,
       totalProductsChecked: totalProducts,
       totalIssuesFound: issues.length,
       scanType,
-      issues,
+      issues
     });
+
+    return scan;
   }
 }

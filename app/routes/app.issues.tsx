@@ -59,11 +59,16 @@ function getSeverityTone(severity: string): "critical" | "warning" | "info" {
   return "info";
 }
 
+import { useSearchParams } from "@remix-run/react";
+
 export default function IssuesPage() {
   const { shop, issues } = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
+  const initialCategory = searchParams.get("category") || "All";
 
   // ── Severity filter state ────────────────────────────────────────────────
   const [selectedSeverities, setSelectedSeverities] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [queryValue, setQueryValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -71,11 +76,12 @@ export default function IssuesPage() {
   const filtered = issues.filter((item) => {
     const matchesSeverity =
       selectedSeverities.length === 0 || selectedSeverities.includes(item.severity);
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     const matchesQuery =
       queryValue === "" ||
       item.productTitle.toLowerCase().includes(queryValue.toLowerCase()) ||
       item.issueType.toLowerCase().includes(queryValue.toLowerCase());
-    return matchesSeverity && matchesQuery;
+    return matchesSeverity && matchesCategory && matchesQuery;
   });
 
   // ── Pagination ────────────────────────────────────────────────────────────
@@ -167,6 +173,27 @@ export default function IssuesPage() {
                       queryPlaceholder="Search by product name or issue type…"
                       filters={[
                         {
+                          key: "category",
+                          label: "Category",
+                          filter: (
+                            <ChoiceList
+                              title="Category"
+                              titleHidden
+                              choices={[
+                                { label: "All Categories", value: "All" },
+                                ...Object.values(ISSUE_DEF).reduce((acc: string[], curr) => {
+                                  if (!acc.includes(curr.category)) acc.push(curr.category);
+                                  return acc;
+                                }, []).map(cat => ({ label: cat, value: cat }))
+                              ]}
+                              selected={[selectedCategory]}
+                              onChange={(v) => { setSelectedCategory(v[0]); setCurrentPage(1); }}
+                              allowMultiple={false}
+                            />
+                          ),
+                          shortcut: true,
+                        },
+                        {
                           key: "severity",
                           label: "Severity",
                           filter: (
@@ -186,12 +213,19 @@ export default function IssuesPage() {
                           shortcut: true,
                         },
                       ]}
-                      appliedFilters={selectedSeverities.map((s) => ({
-                        key: "severity",
-                        label: `Severity: ${s}`,
-                        onRemove: () =>
-                          setSelectedSeverities((prev) => prev.filter((x) => x !== s)),
-                      }))}
+                      appliedFilters={[
+                        ...(selectedCategory !== "All" ? [{
+                          key: "category",
+                          label: `Category: ${selectedCategory}`,
+                          onRemove: () => setSelectedCategory("All"),
+                        }] : []),
+                        ...selectedSeverities.map((s) => ({
+                          key: "severity",
+                          label: `Severity: ${s}`,
+                          onRemove: () =>
+                            setSelectedSeverities((prev) => prev.filter((x) => x !== s)),
+                        }))
+                      ]}
                       onQueryChange={(v) => { setQueryValue(v); setCurrentPage(1); }}
                       onQueryClear={() => setQueryValue("")}
                       onClearAll={handleFiltersClearAll}
