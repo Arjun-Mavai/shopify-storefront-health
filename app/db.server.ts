@@ -2,23 +2,15 @@
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
-import { createClient } from "@libsql/client";
 
 declare global {
   var prismaGlobal: PrismaClient | undefined;
 }
 
-const tursoUrl = (process.env.TURSO_DATABASE_URL && process.env.TURSO_DATABASE_URL !== "undefined") 
-  ? process.env.TURSO_DATABASE_URL 
-  : "libsql://shopify-learning-arjun-gurjar.aws-ap-south-1.turso.io";
-const tursoToken = process.env.TURSO_AUTH_TOKEN || "";
-
-const libsql = createClient({
-  url: tursoUrl,
-  authToken: tursoToken,
+const adapter = new PrismaLibSql({
+  url: process.env.TURSO_DATABASE_URL || "libsql://shopify-learning-arjun-gurjar.aws-ap-south-1.turso.io",
+  authToken: process.env.TURSO_AUTH_TOKEN || "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODU5MTkyOTEsImlkIjoiMDE5ZmQxMTUtYTYwMS03ZTU1LWJhYmEtNTA1MzI1ZTkzOGJlIiwia2lkIjoieXoydV9sS0g4U2NxdXlEZ3ZMUVBvcngtdjdYWUtoT2FkTjBYanVJU2llTSIsInJpZCI6IjM1N2E4YmRlLTg5MTktNGU0Zi1hNjkyLWVkZGQ3NjYwYWQxMiJ9.QW9xeHkR8blWNEqaQie1J1Q_Ob0i7f_4vMKedZZHHY6OhyWyMnvBp_7IcSy-zKFLX-q_W1r6T3vEXTWME0-eBg",
 });
-
-const adapter = new PrismaLibSql(libsql);
 
 // Force re-instantiation to pick up latest generated schema definitions
 const prisma =
