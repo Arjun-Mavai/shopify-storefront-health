@@ -179,7 +179,7 @@ export default function Dashboard() {
         
         {/* HERO SECTION */}
         <div style={{
-          background: 'url(/images/shopify-top-left.png) no-repeat center center',
+          background: 'url(/images/shopify-top-left.png) bottom goldenrod ',
           backgroundSize: 'cover',
           borderRadius: '12px',
           border: '1px solid #e1e3e5',
@@ -214,21 +214,23 @@ export default function Dashboard() {
               Find missing product information, SEO issues, catalog problems, <br />and conversion blockers before they affect your sales.
             </Text>
             <div style={{ marginTop: '8px', display: 'flex', gap: '12px' }}>
-               <button 
-                 onClick={handleScanNow} 
-                 disabled={isScanning || atLimit}
-                 style={{
-                   background: '#1c2260', 
-                   color: '#fff', 
-                   border: 'none', 
-                   padding: '10px 20px', 
-                   borderRadius: '6px', 
-                   fontWeight: 600, 
-                   fontSize: '13px',
-                   cursor: (isScanning || atLimit) ? 'not-allowed' : 'pointer'
-                 }}>
-                 {isScanning ? 'Scanning...' : 'Start Free Scan'}
-               </button>
+               {plan === "FREE" && (
+                 <button 
+                   onClick={handleScanNow} 
+                   disabled={isScanning || atLimit}
+                   style={{
+                     background: '#1c2260', 
+                     color: '#fff', 
+                     border: 'none', 
+                     padding: '10px 20px', 
+                     borderRadius: '6px', 
+                     fontWeight: 600, 
+                     fontSize: '13px',
+                     cursor: (isScanning || atLimit) ? 'not-allowed' : 'pointer'
+                   }}>
+                   {isScanning ? 'Scanning...' : 'Start Free Scan'}
+                 </button>
+               )}
                <Button onClick={() => navigate("/app/features")} >
                  How It Works
                </Button>
@@ -325,8 +327,29 @@ export default function Dashboard() {
                   </div>
                 </div>
                 {/* Full Width Footer */}
-                <div style={{ borderTop: '1px solid #f4f6f8', padding: '12px', textAlign: 'center', background: '#fafbfb', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', cursor: 'pointer' }} onClick={() => navigate('/app/issues')}>
-                  <span style={{ color: '#2c6ecb', fontSize: '13px', fontWeight: 600 }}>View Recommendations →</span>
+                <div style={{ borderTop: '1px solid #f4f6f8', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#fafbfb', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
+                  <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => navigate('/app/issues')}>
+                    <span style={{ color: '#2c6ecb', fontSize: '13px', fontWeight: 600 }}>View Recommendations →</span>
+                  </div>
+                  {plan !== "FREE" && (
+                    <button 
+                      onClick={handleScanNow} 
+                      disabled={isScanning || atLimit}
+                      style={{
+                        width: '100%',
+                        background: '#1c2260', 
+                        color: '#fff', 
+                        border: 'none', 
+                        padding: '12px 20px', 
+                        borderRadius: '6px', 
+                        fontWeight: 600, 
+                        fontSize: '13px',
+                        cursor: (isScanning || atLimit) ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 2px 4px rgba(28, 34, 96, 0.2)'
+                      }}>
+                      {isScanning ? 'Scanning...' : 'Run New Scan (PRO)'}
+                    </button>
+                  )}
                 </div>
               </CardContainer>
 
