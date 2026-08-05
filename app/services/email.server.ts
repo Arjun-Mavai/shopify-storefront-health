@@ -39,54 +39,57 @@ export class EmailService {
     <head>
       <meta charset="utf-8">
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 40px 20px; }
-        .card { max-width: 600px; margin: 0 auto; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 16px; padding: 40px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .badge { background: #059669; color: #ffffff; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; display: inline-block; }
-        .title { color: #ffffff; font-size: 24px; margin-top: 15px; font-weight: 700; }
-        .content { color: #94a3b8; font-size: 16px; line-height: 1.6; }
-        .plan-box { background: #1e293b; border: 1px solid #3b82f6; border-radius: 12px; padding: 20px; margin: 25px 0; }
-        .plan-box table { width: 100%; border-collapse: collapse; }
-        .plan-box td { padding: 8px 0; color: #cbd5e1; font-size: 15px; }
-        .plan-box td.bold { font-weight: bold; color: #ffffff; text-align: right; }
-        .btn { display: block; width: 100%; text-align: center; background: #2563eb; color: #ffffff; font-weight: bold; text-decoration: none; padding: 14px 0; border-radius: 8px; font-size: 16px; margin-top: 30px; }
-        .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 12px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f6f8; color: #202223; margin: 0; padding: 40px 20px; }
+        .card { max-width: 700px; margin: 0 auto; background: #ffffff; border: 1px solid #e1e3e5; border-radius: 20px; padding: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); text-align: center; }
+        .badge { background: #f4f1ff; color: #6338f0; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 12px; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+        .title { color: #000000; font-size: 32px; margin-top: 0px; margin-bottom: 16px; font-weight: 800; }
+        .title span { color: #2c6ecb; }
+        .content { color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 40px; }
+        .content strong { color: #0f172a; }
+        
+        .metrics-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 30px; overflow: hidden; }
+        .metrics-table td { padding: 24px 12px; text-align: center; border-right: 1px solid #e2e8f0; width: 25%; }
+        .metrics-table td:last-child { border-right: none; }
+        .metric-title { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { font-size: 16px; color: #0f172a; font-weight: 700; }
+        
+        .btn { display: inline-block; width: 100%; box-sizing: border-box; text-align: center; background: #3b82f6; color: #ffffff; font-weight: bold; text-decoration: none; padding: 18px 0; border-radius: 12px; font-size: 16px; }
+        .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 13px; line-height: 1.5; }
       </style>
     </head>
     <body>
       <div class="card">
-        <div class="header">
-          <span class="badge">PRO SUBSCRIPTION ACTIVE 🚀</span>
-          <h1 class="title">Thank You For Upgrading Shop Health!</h1>
-        </div>
+        <div class="badge">👑 PRO SUBSCRIPTION ACTIVE 🚀</div>
+        
+        <h1 class="title">Thank You For Upgrading <span>Shop Health!</span></h1>
         
         <div class="content">
           <p>Great news! Store <strong>${shopDomain}</strong> is now officially upgraded to <strong>${planName}</strong>!</p>
           <p>Your store now unlocks priority GraphQL product audit scanning, automated defect detection, and instant webhook rescans.</p>
         </div>
 
-        <div class="plan-box">
-          <table>
-            <tr>
-              <td>Plan Tier:</td>
-              <td class="bold">${planName}</td>
-            </tr>
-            <tr>
-              <td>Billing Amount:</td>
-              <td class="bold">$${amount.toFixed(2)} USD</td>
-            </tr>
-            <tr>
-              <td>Renewal Date:</td>
-              <td class="bold">${formattedEnd}</td>
-            </tr>
-            <tr>
-              <td>Audit Limits:</td>
-              <td class="bold">1,000 Scans / Month</td>
-            </tr>
-          </table>
-        </div>
+        <table class="metrics-table">
+          <tr>
+            <td>
+              <div class="metric-title">Plan Tier</div>
+              <div class="metric-value">${planName}</div>
+            </td>
+            <td>
+              <div class="metric-title">Billing Amount</div>
+              <div class="metric-value">$${amount.toFixed(2)} USD</div>
+            </td>
+            <td>
+              <div class="metric-title">Renewal Date</div>
+              <div class="metric-value">${formattedEnd}</div>
+            </td>
+            <td>
+              <div class="metric-title">Audit Limits</div>
+              <div class="metric-value">1,000 Scans / Month</div>
+            </td>
+          </tr>
+        </table>
 
-        <a href="https://${shopDomain}/admin/apps" class="btn">Open Shop Health Dashboard</a>
+        <a href="https://${shopDomain}/admin/apps" class="btn">Open Shop Health Dashboard &rarr;</a>
 
         <div class="footer">
           <p>© 2026 Shop Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
@@ -132,21 +135,52 @@ export class EmailService {
     <head>
       <meta charset="utf-8">
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 40px 20px; }
-        .card { max-width: 600px; margin: 0 auto; background: #1e293b; border: 1px solid #dc2626; border-radius: 16px; padding: 40px; }
-        .title { color: #ef4444; font-size: 22px; font-weight: bold; }
-        .content { color: #cbd5e1; font-size: 15px; line-height: 1.6; }
-        .btn { display: inline-block; background: #dc2626; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f6f8; color: #202223; margin: 0; padding: 40px 20px; }
+        .card { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #fee2e2; border-radius: 20px; padding: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); text-align: center; }
+        .badge { background: #fef2f2; color: #dc2626; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 12px; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+        .title { color: #000000; font-size: 28px; margin-top: 0px; margin-bottom: 16px; font-weight: 800; }
+        .content { color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 40px; }
+        .content strong { color: #0f172a; }
+        
+        .metrics-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #fee2e2; border-radius: 12px; margin-bottom: 30px; overflow: hidden; background: #fef2f2; }
+        .metrics-table td { padding: 24px 12px; text-align: center; border-right: 1px solid #fecaca; width: 50%; }
+        .metrics-table td:last-child { border-right: none; }
+        .metric-title { font-size: 12px; color: #dc2626; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { font-size: 18px; color: #991b1b; font-weight: 700; }
+        
+        .btn { display: inline-block; width: 100%; box-sizing: border-box; text-align: center; background: #dc2626; color: #ffffff; font-weight: bold; text-decoration: none; padding: 18px 0; border-radius: 12px; font-size: 16px; }
+        .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 13px; line-height: 1.5; }
       </style>
     </head>
     <body>
       <div class="card">
+        <div class="badge">⚠️ PLAN DOWNGRADED</div>
+        
         <h1 class="title">Notice: Shop Health Subscription Plan Changed</h1>
+        
         <div class="content">
           <p>Your subscription for store <strong>${shopDomain}</strong> has been cancelled or transitioned back to the <strong>Starter Free Plan</strong>.</p>
-          <p>Your store limit is now set to 10 audit scans per month. You can reactivate your Growth Pro plan anytime from your Shopify app dashboard.</p>
+          <p>You can reactivate your Growth Pro plan anytime from your Shopify app dashboard to regain unlimited scanning.</p>
         </div>
-        <a href="https://${shopDomain}/admin/apps" class="btn">Reactivate Subscription</a>
+
+        <table class="metrics-table">
+          <tr>
+            <td>
+              <div class="metric-title">New Plan Tier</div>
+              <div class="metric-value">Starter Free</div>
+            </td>
+            <td>
+              <div class="metric-title">New Audit Limit</div>
+              <div class="metric-value">10 Scans / Month</div>
+            </td>
+          </tr>
+        </table>
+
+        <a href="https://${shopDomain}/admin/apps" class="btn">Reactivate Subscription &rarr;</a>
+
+        <div class="footer">
+          <p>© 2026 Shop Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
+        </div>
       </div>
     </body>
     </html>
@@ -192,21 +226,51 @@ export class EmailService {
     <head>
       <meta charset="utf-8">
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 40px 20px; }
-        .card { max-width: 600px; margin: 0 auto; background: #1e293b; border: 1px solid #f59e0b; border-radius: 16px; padding: 40px; }
-        .score { font-size: 48px; font-weight: 800; color: #f59e0b; text-align: center; margin: 10px 0; }
-        .content { color: #cbd5e1; font-size: 15px; line-height: 1.6; }
-        .btn { display: block; width: 100%; text-align: center; background: #f59e0b; color: #000000; padding: 14px 0; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f6f8; color: #202223; margin: 0; padding: 40px 20px; }
+        .card { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #fef3c7; border-radius: 20px; padding: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); text-align: center; }
+        .badge { background: #fffbeb; color: #d97706; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 12px; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+        .title { color: #000000; font-size: 28px; margin-top: 0px; margin-bottom: 16px; font-weight: 800; }
+        .content { color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 40px; }
+        .content strong { color: #0f172a; }
+        
+        .metrics-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #fef3c7; border-radius: 12px; margin-bottom: 30px; overflow: hidden; background: #fffbeb; }
+        .metrics-table td { padding: 32px 12px; text-align: center; border-right: 1px solid #fde68a; width: 50%; }
+        .metrics-table td:last-child { border-right: none; }
+        .metric-title { font-size: 12px; color: #d97706; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { font-size: 42px; color: #b45309; font-weight: 800; }
+        
+        .btn { display: inline-block; width: 100%; box-sizing: border-box; text-align: center; background: #f59e0b; color: #ffffff; font-weight: bold; text-decoration: none; padding: 18px 0; border-radius: 12px; font-size: 16px; }
+        .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 13px; line-height: 1.5; }
       </style>
     </head>
     <body>
       <div class="card">
-        <h2 style="color: #ffffff; text-align: center;">🚨 Health Score Alert Triggered!</h2>
-        <div class="score">${healthScore}%</div>
+        <div class="badge">🚨 HEALTH SCORE ALERT</div>
+        
+        <h1 class="title">Critical Health Threshold Reached</h1>
+        
         <div class="content">
-          <p>Store <strong>${shopDomain}</strong> health score dropped below alert threshold with <strong>${totalIssues} product defects</strong> detected in the latest audit.</p>
+          <p>Store <strong>${shopDomain}</strong> health score dropped below your configured alert threshold. Active product defects were detected in the latest audit.</p>
         </div>
-        <a href="https://${shopDomain}/admin/apps" class="btn">View & Fix Product Defects</a>
+
+        <table class="metrics-table">
+          <tr>
+            <td>
+              <div class="metric-title">Current Health Score</div>
+              <div class="metric-value">${healthScore}%</div>
+            </td>
+            <td>
+              <div class="metric-title">Active Defects</div>
+              <div class="metric-value">${totalIssues}</div>
+            </td>
+          </tr>
+        </table>
+
+        <a href="https://${shopDomain}/admin/apps" class="btn">View & Fix Product Defects &rarr;</a>
+
+        <div class="footer">
+          <p>© 2026 Shop Health SaaS Auditor. All rights reserved.<br>Official Shopify Partner SaaS Application.</p>
+        </div>
       </div>
     </body>
     </html>
@@ -232,3 +296,4 @@ export class EmailService {
     }
   }
 }
+
