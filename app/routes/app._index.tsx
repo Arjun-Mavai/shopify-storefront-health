@@ -233,18 +233,22 @@ export default function Dashboard() {
                </Button>
             </div>
           </div>
-          {/* Seamless background image on the right */}
-          <div style={{ 
-            position: 'absolute', 
-            right: '-5%', 
-            top: 0, 
-            height: '100%', 
-            width: '60%', 
-            background: 'url(/images/shopify-top-left.png) no-repeat right center', 
-            backgroundSize: 'cover',
-            opacity: 0.9,
-            zIndex: 1
-          }}></div>
+          {/* Hero Image on the right */}
+          <img 
+            src="/images/shopify-top-left.png" 
+            alt="Hero Background" 
+            style={{ 
+              position: 'absolute', 
+              right: '0', 
+              top: '50%',
+              transform: 'translateY(-50%)', 
+              height: '100%', 
+              width: 'auto', 
+              objectFit: 'contain',
+              zIndex: 1,
+              pointerEvents: 'none'
+            }} 
+          />
         </div>
 
         {atLimit && (
@@ -261,7 +265,7 @@ export default function Dashboard() {
               {/* STORE HEALTH SCORE CARD */}
               <CardContainer padding="0">
                 <div style={{ padding: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                      <Text as="h2" variant="headingSm" fontWeight="bold">Store Health Score</Text>
                      <Icon source={InfoIcon} tone="subdued" />
                   </div>
@@ -446,7 +450,7 @@ export default function Dashboard() {
               
               {/* STORE & PLAN STATUS */}
               <CardContainer padding="20px">
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid #f4f6f8' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid #f4f6f8' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                        <Text as="h2" variant="headingSm" fontWeight="bold">Store & Plan Status</Text>
                        <span style={{ background: '#e6f0ff', color: '#2c6ecb', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>PRO</span>
@@ -496,19 +500,22 @@ export default function Dashboard() {
                         width: '100%',
                         background: '#ffffff',
                         border: '1px solid #c9cccf',
-                        padding: '8px 12px',
+                        padding: '8px 0',
                         borderRadius: '6px',
                         fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        textAlign: 'center',
                         gap: '6px',
                         fontSize: '13px',
                         boxShadow: '0 1px 0 rgba(0,0,0,0.05)'
                       }}>
-                      <Icon source={CartIcon} />
-                      Manage Billing
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon source={CartIcon} />
+                      </div>
+                      <span style={{ paddingTop: '2px' }}>Manage Billing</span>
                     </button>
                  </div>
               </CardContainer>

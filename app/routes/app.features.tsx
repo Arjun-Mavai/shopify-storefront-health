@@ -133,16 +133,16 @@ export default function FeaturesPage() {
               <Grid.Cell key={card.title} columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                 <Card>
                   <BlockStack gap="400">
-                    <Box borderRadius="200">
+                    <Box borderRadius="200" overflowX="hidden" overflowY="hidden" background="bg-surface-secondary">
                       <img
                         src={card.image}
                         alt={card.title}
                         style={{
                           width: "100%",
                           height: "auto",
-                          maxHeight: "350px",
-                          objectFit: "contain",
+                          display: "block",
                           borderRadius: "8px",
+                          border: "1px solid #e1e3e5"
                         }}
                       />
                     </Box>
