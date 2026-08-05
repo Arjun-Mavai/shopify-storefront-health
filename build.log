@@ -1,0 +1,92 @@
+
+> build
+> remix vite:build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 80 modules transformed.
+✗ Build failed in 244ms
+[commonjs--resolver] Server-only module referenced by client
+
+    '../services/health.server' imported by route 'app/routes/app._index.tsx'
+
+  Remix automatically removes server-code from these exports:
+    `loader`, `action`, `headers`
+
+  But other route exports in 'app/routes/app._index.tsx' depend on '../services/health.server'.
+
+  See https://remix.run/docs/en/main/guides/vite#splitting-up-client-and-server-code
+
+    at Object.resolveId (/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/dev/dist/vite/plugin.js:982:15)
+    at PluginDriver.hookFirstAndGetPlugin (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:22669:28)
+    at resolveId (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:21131:26)
+    at ModuleLoader.resolveId (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:21575:15)
+    at Object.resolveId (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:2835:10)
+    at PluginDriver.hookFirstAndGetPlugin (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:22669:28)
+    at resolveId (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:21131:26)
+    at ModuleLoader.resolveId (file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:21575:15)
+    at file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/rollup/dist/es/shared/node-entry.js:21888:50 {
+  code: 'PLUGIN_ERROR',
+  plugin: 'commonjs--resolver',
+  hook: 'resolveId',
+  watchFiles: [
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/privacy.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/root.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/dev/dist/config/defaults/entry.client.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/webhooks.app.scopes_update.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/auth.login/route.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/support.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/_index/route.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/webhooks.app.uninstalled.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/terms.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/auth.$.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.additional.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.settings.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.features.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.onboarding.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app._index.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.issues.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.scans.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.billing.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.help.tsx',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/index.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react/jsx-runtime.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react/index.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react-dom/client.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/browser.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/index.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/components.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/server.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/scroll-restoration.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react/cjs/react-jsx-runtime.production.min.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react-dom/index.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react-router-dom/dist/index.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react/cjs/react.production.min.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/package.json',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/formData.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/cookies.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/responses.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/single-fetch.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/server.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/sessions/memoryStorage.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/upload/memoryUploadHandler.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/sessions.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/upload/errors.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/sessions/cookieStorage.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/server-runtime/dist/esm/dev.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react-router-dom/server.mjs',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/errorBoundaries.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/single-fetch.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/_virtual/_rollupPluginBabelHelpers.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/routes.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/markup.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/errors.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/invariant.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/fog-of-war.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react-router/dist/index.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/router/dist/router.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/@remix-run/react/dist/esm/links.js',
+    '/Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/node_modules/react-dom/cjs/react-dom.production.min.js'
+  ]
+}

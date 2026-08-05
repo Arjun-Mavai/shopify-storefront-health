@@ -30,6 +30,7 @@ import {
 import { authenticate } from "../shopify.server";
 import { StoreRepository } from "../repositories/store.server";
 import { ScanRepository } from "../repositories/scan.server";
+import { ISSUE_DEF } from "../lib/issue-types";
 
 // Number of issues shown per page
 const PAGE_SIZE = 25;
@@ -37,7 +38,16 @@ const PAGE_SIZE = 25;
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const store = await StoreRepository.getOrCreateStore(session.shop);
-  const issues = await ScanRepository.getStoreIssues(store.id);
+  const rawIssues = await ScanRepository.getStoreIssues(store.id);
+
+  const issues = rawIssues.map((issue) => {
+    const def = Object.values(ISSUE_DEF).find((d) => d.type === issue.issueType);
+    return {
+      ...issue,
+      category: def?.category ?? "Other",
+      label: issue.issueType.replace(/_/g, " "),
+    };
+  });
 
   return json({ shop: session.shop, issues });
 };
@@ -47,21 +57,6 @@ function getSeverityTone(severity: string): "critical" | "warning" | "info" {
   if (severity === "HIGH") return "critical";
   if (severity === "MEDIUM") return "warning";
   return "info";
-}
-
-// Map issue type to a clean human-readable label
-function formatIssueType(issueType: string): string {
-  const labels: Record<string, string> = {
-    MISSING_IMAGE: "Missing Image",
-    MISSING_ALT: "Missing Alt Text",
-    MISSING_DESCRIPTION: "Thin Description",
-    NO_TAGS: "No Tags",
-    PRICE_ZERO: "Zero Price",
-    LOW_STOCK: "Low Stock",
-    DUPLICATE_SKU: "Duplicate SKU",
-    DRAFT_PRODUCT: "Draft Product",
-  };
-  return labels[issueType] ?? issueType.replace(/_/g, " ");
 }
 
 export default function IssuesPage() {
@@ -222,7 +217,7 @@ export default function IssuesPage() {
                                   {item.productTitle}
                                 </Text>
                                 <Badge tone={getSeverityTone(item.severity)}>
-                                  {formatIssueType(item.issueType)}
+                                  {item.label}
                                 </Badge>
                                 <Badge tone={getSeverityTone(item.severity)}>
                                   {item.severity}
