@@ -12,7 +12,7 @@ import { Resend } from "resend";
 const resendApiKey = process.env.RESEND_API_KEY || "re_test_key";
 const resend = new Resend(resendApiKey);
 
-const EMAIL_FROM = process.env.EMAIL_FROM || "Shop Health <onboarding@resend.dev>";
+const getEmailFrom = () => process.env.EMAIL_FROM || "Shop Health <mppsc@zenscroll.app>";
 
 export class EmailService {
   /**
@@ -106,7 +106,7 @@ export class EmailService {
       }
 
       const response = await resend.emails.send({
-        from: EMAIL_FROM,
+        from: getEmailFrom(),
         to: [toEmail],
         subject: `🎉 Subscription Active: Welcome to Shop Health ${planName}!`,
         html: htmlContent,
@@ -193,7 +193,7 @@ export class EmailService {
       }
 
       const response = await resend.emails.send({
-        from: EMAIL_FROM,
+        from: getEmailFrom(),
         to: [toEmail],
         subject: `⚠️ Notice: Shop Health Subscription Plan Downgraded`,
         html: htmlContent,
@@ -283,7 +283,7 @@ export class EmailService {
       }
 
       const response = await resend.emails.send({
-        from: EMAIL_FROM,
+        from: getEmailFrom(),
         to: [toEmail],
         subject: `🚨 Alert: ${shopDomain} Store Health Score Dropped to ${healthScore}%`,
         html: htmlContent,
