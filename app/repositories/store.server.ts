@@ -189,21 +189,47 @@ export class StoreRepository {
     // 2. Record Financial Payment Log / Invoice entry if paid plan
     if (billingDetails && (prisma as any).paymentLog) {
       try {
+        // Prevent duplicate logs for the same active charge
+        const existingLog = await (prisma as any).paymentLog.findFirst({
+          where: { shopifyChargeId: shopifyChargeId || "MANUAL_OR_FREE", status: "ACTIVE" }
+        });
+
+        if (!existingLog) {
+          await (prisma as any).paymentLog.create({
+            data: {
+              storeId,
+              shopifyChargeId: shopifyChargeId || "MANUAL_OR_FREE",
+              planName: billingDetails.planName,
+              amount: billingDetails.amount,
+              currency: "USD",
+              status: "ACTIVE",
+              billingOn: now,
+              periodStart: now,
+              periodEnd: periodEnd,
+            },
+          });
+        }
+      } catch (err) {
+        console.error("PaymentLog creation error:", err);
+      }
+    } else if (plan === "FREE" && (prisma as any).paymentLog) {
+      // Log Cancellation when switching to FREE
+      try {
         await (prisma as any).paymentLog.create({
           data: {
             storeId,
-            shopifyChargeId: shopifyChargeId || "MANUAL_OR_FREE",
-            planName: billingDetails.planName,
-            amount: billingDetails.amount,
+            shopifyChargeId: shopifyChargeId || "CANCELLATION",
+            planName: "Downgrade to Free",
+            amount: 0,
             currency: "USD",
-            status: "ACTIVE",
+            status: "CANCELLED",
             billingOn: now,
             periodStart: now,
-            periodEnd: periodEnd,
+            periodEnd: now,
           },
         });
       } catch (err) {
-        console.error("PaymentLog creation error:", err);
+        console.error("PaymentLog cancellation error:", err);
       }
     }
 
