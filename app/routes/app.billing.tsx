@@ -99,11 +99,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const targetPlan = planIntent === "ENTERPRISE" ? ANNUAL_PLAN : MONTHLY_PLAN;
   const returnUrl = `https://${session.shop}/admin/apps/${process.env.SHOPIFY_API_KEY}/app/billing`;
 
-  return await billing.request({
-    plan: targetPlan,
-    isTest: isTestMode,
-    returnUrl,
-  });
+  try {
+    return await billing.request({
+      plan: targetPlan,
+      isTest: isTestMode,
+      returnUrl,
+    });
+  } catch (error: any) {
+    console.error("🔥 BILLING ERROR:", error.message);
+    if (error.errorData) {
+      console.error("🔥 BILLING ERROR DATA:", JSON.stringify(error.errorData, null, 2));
+    }
+    throw error;
+  }
 };
 
 // ─── Helper: plan comparison data ──────────────────────────────────────────
