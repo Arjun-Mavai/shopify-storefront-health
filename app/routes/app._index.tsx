@@ -9,7 +9,6 @@ import {
   Button,
   BlockStack,
   Badge,
-  InlineStack,
   Banner,
   Icon,
   Box,
@@ -25,7 +24,6 @@ import {
   ChevronRightIcon,
   ClockIcon,
   MenuIcon,
-  LinkIcon,
   SettingsIcon,
   ChatIcon,
   NoteIcon,
@@ -126,8 +124,8 @@ function getSeverityTone(severity: string): "critical" | "warning" | "info" {
 }
 
 // Reusable card container component
-const CardContainer = ({ children, padding = "20px" }: { children: React.ReactNode, padding?: string }) => (
-  <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e1e3e5', padding, boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+const CardContainer = ({ children, padding = "20px", style = {} }: { children: React.ReactNode, padding?: string, style?: React.CSSProperties }) => (
+  <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e1e3e5', padding, boxShadow: '0 1px 2px rgba(0,0,0,0.02)', ...style }}>
     {children}
   </div>
 );
@@ -157,20 +155,19 @@ export default function Dashboard() {
   };
 
   const categories = [
-    { name: ISSUE_CATEGORIES.IMAGES, icon: ViewIcon, data: categoryHealth[ISSUE_CATEGORIES.IMAGES], param: "Images", color: "#36C870", bg: "#e6f4ea" },
+    { name: ISSUE_CATEGORIES.IMAGES, icon: ImageIcon, data: categoryHealth[ISSUE_CATEGORIES.IMAGES], param: "Images", color: "#36C870", bg: "#e6f4ea" },
     { name: ISSUE_CATEGORIES.SEO, icon: SearchIcon, data: categoryHealth[ISSUE_CATEGORIES.SEO], param: "SEO", color: "#458FFF", bg: "#f0f4f8" },
     { name: ISSUE_CATEGORIES.PRODUCT_CONTENT, icon: NoteIcon, data: categoryHealth[ISSUE_CATEGORIES.PRODUCT_CONTENT], param: "Product Content", color: "#FF4A4A", bg: "#ffeded" },
-    { name: ISSUE_CATEGORIES.CATALOG, icon: ProductIcon, data: categoryHealth[ISSUE_CATEGORIES.CATALOG], param: "Catalog", color: "#8C9196", bg: "#f4f6f8" },
+    { name: ISSUE_CATEGORIES.CATALOG, icon: ProductIcon, data: categoryHealth[ISSUE_CATEGORIES.CATALOG], param: "Catalog", color: "#5C6AC4", bg: "#f4f6f8" },
     { name: ISSUE_CATEGORIES.CONVERSION, icon: CartIcon, data: categoryHealth[ISSUE_CATEGORIES.CONVERSION], param: "Conversion", color: "#FFB020", bg: "#fff6e0" },
   ];
 
   // Colors based on score
   const isHealthy = healthScore >= 80;
   const isWarning = healthScore >= 50 && healthScore < 80;
-  const healthColor = isHealthy ? "#36C870" : isWarning ? "#FFB020" : "#FF4A4A";
-  const badgeTone = isHealthy ? "success" : isWarning ? "warning" : "critical";
-  const badgeText = isHealthy ? "Good" : isWarning ? "Needs Attention" : "Critical";
-
+  const healthColor = isHealthy ? "#36C870" : isWarning ? "#458FFF" : "#FF4A4A";
+  
+  // Custom circular chart math
   const strokeDasharray = 339.29; // 2 * pi * 54
   const strokeDashoffset = strokeDasharray - (healthScore / 100) * strokeDasharray;
 
@@ -187,15 +184,27 @@ export default function Dashboard() {
           border: '1px solid #e1e3e5',
           display: 'flex',
           justifyContent: 'space-between',
-          padding: '24px 32px',
+          padding: '32px 40px',
           position: 'relative',
           overflow: 'hidden',
           minHeight: '220px',
           boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
         }}>
-          <div style={{ zIndex: 2, maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ zIndex: 2, maxWidth: '550px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <Badge tone="info" icon={CheckCircleIcon}>Keep your store healthy</Badge>
+              <span style={{ 
+                background: '#eef3fa', 
+                color: '#2c6ecb', 
+                padding: '4px 8px', 
+                borderRadius: '12px', 
+                fontSize: '12px', 
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <div style={{ width: '12px', height: '12px' }}><Icon source={CheckCircleIcon} tone="info" /></div> Keep your store healthy
+              </span>
             </div>
             <Text as="h1" variant="heading3xl" fontWeight="bold">
               Scan your Shopify store in <br />under <span style={{color: '#2c6ecb'}}>30 seconds.</span>
@@ -211,8 +220,8 @@ export default function Dashboard() {
                    background: '#1c2260', 
                    color: '#fff', 
                    border: 'none', 
-                   padding: '6px 16px', 
-                   borderRadius: '4px', 
+                   padding: '10px 20px', 
+                   borderRadius: '6px', 
                    fontWeight: 600, 
                    fontSize: '13px',
                    cursor: (isScanning || atLimit) ? 'not-allowed' : 'pointer'
@@ -227,12 +236,13 @@ export default function Dashboard() {
           {/* Seamless background image on the right */}
           <div style={{ 
             position: 'absolute', 
-            right: '0', 
-            top: '0', 
+            right: '-5%', 
+            top: 0, 
             height: '100%', 
-            width: '50%', 
-            background: 'url(/images/shopify-top-left.png) no-repeat right bottom', 
-            backgroundSize: 'contain',
+            width: '60%', 
+            background: 'url(/images/shopify-top-left.png) no-repeat right center', 
+            backgroundSize: 'cover',
+            opacity: 0.9,
             zIndex: 1
           }}></div>
         </div>
@@ -249,114 +259,136 @@ export default function Dashboard() {
             <BlockStack gap="400">
               
               {/* STORE HEALTH SCORE CARD */}
-              <CardContainer padding="20px">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid #f4f6f8' }}>
-                   <Text as="h2" variant="headingSm" fontWeight="bold">Store Health Score</Text>
-                   <Icon source={InfoIcon} tone="subdued" />
-                </div>
-                
-                <div style={{ display: 'flex', marginTop: '16px' }}>
-                  {/* Left: Circular Chart & Text */}
-                  <div style={{ flex: '0 0 45%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '20px', borderRight: '1px solid #f4f6f8', paddingRight: '20px' }}>
-                    
-                    <div style={{ position: 'relative', width: '110px', height: '110px', flexShrink: 0 }}>
-                      <svg width="110" height="110" viewBox="0 0 120 120">
-                        <circle cx="60" cy="60" r="54" fill="none" stroke="#f4f6f8" strokeWidth="8" />
-                        <circle cx="60" cy="60" r="54" fill="none" stroke={healthColor} strokeWidth="8" strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset} strokeLinecap="round" transform="rotate(-90 60 60)" />
-                      </svg>
-                      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                         <Text as="p" variant="heading2xl" fontWeight="bold">{healthScore}</Text>
-                         <Text as="p" tone="subdued" variant="bodySm">/100</Text>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
-                      <Badge tone={badgeTone}>{badgeText}</Badge>
-                      <Text as="p" tone="subdued" variant="bodySm">Your store is doing well! There are a few issues that need your attention.</Text>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Icon source={ArrowUpIcon} tone="success" />
-                        <span style={{ color: '#008060', fontWeight: 'bold', fontSize: '13px' }}>12 points</span>
-                        <span style={{ color: '#6d7175', fontSize: '13px' }}>from last scan</span>
-                      </div>
-                    </div>
-
+              <CardContainer padding="0">
+                <div style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                     <Text as="h2" variant="headingSm" fontWeight="bold">Store Health Score</Text>
+                     <Icon source={InfoIcon} tone="subdued" />
                   </div>
+                  <div style={{ borderBottom: '1px solid #f4f6f8', marginTop: '12px' }}></div>
                   
-                  {/* Right: Category List */}
-                  <div style={{ flex: '0 0 55%', paddingLeft: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                       {categories.map((cat, i) => (
-                         <div key={i} style={{ 
-                           display: 'flex', 
-                           justifyContent: 'space-between', 
-                           alignItems: 'center', 
-                           padding: '6px 8px', 
-                           cursor: 'pointer',
-                           borderRadius: '4px',
-                           transition: 'background-color 0.2s',
-                         }} 
-                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                         onClick={() => navigate(`/app/issues?category=${encodeURIComponent(cat.param)}`)}>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                             <div style={{ background: cat.bg, width: '24px', height: '24px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: cat.color }}>
-                               <Icon source={cat.icon} />
+                  <div style={{ display: 'flex', marginTop: '20px' }}>
+                    {/* Left: Circular Chart & Text */}
+                    <div style={{ flex: '0 0 50%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', borderRight: '1px solid #f4f6f8', paddingRight: '20px' }}>
+                      
+                      <div style={{ position: 'relative', width: '130px', height: '130px', flexShrink: 0 }}>
+                        <svg width="130" height="130" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="54" fill="none" stroke="#f4f6f8" strokeWidth="10" />
+                          <circle cx="60" cy="60" r="54" fill="none" stroke={healthColor} strokeWidth="10" strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset} strokeLinecap="round" transform="rotate(-90 60 60)" />
+                        </svg>
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                           <Text as="p" variant="heading3xl" fontWeight="bold">{healthScore}</Text>
+                           <Text as="p" tone="subdued" variant="bodySm">/100</Text>
+                        </div>
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+                        <span style={{ 
+                          background: isHealthy ? '#e6f4ea' : isWarning ? '#fff6e0' : '#ffeded',
+                          color: isHealthy ? '#008060' : isWarning ? '#b98900' : '#d82c0d',
+                          padding: '4px 12px',
+                          borderRadius: '16px',
+                          fontSize: '13px',
+                          fontWeight: 'bold'
+                        }}>
+                          {isHealthy ? "Good" : isWarning ? "Needs Attention" : "Critical"}
+                        </span>
+                        <p style={{ fontSize: '13px', color: '#6d7175', margin: 0, lineHeight: 1.4 }}>Your store is doing well! There are a few issues that need your attention.</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                          <Icon source={ArrowUpIcon} tone="success" />
+                          <span style={{ color: '#008060', fontWeight: 'bold', fontSize: '13px' }}>12 points</span>
+                          <span style={{ color: '#6d7175', fontSize: '13px' }}>from last scan</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Right: Category List */}
+                    <div style={{ flex: '0 0 50%', paddingLeft: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                         {categories.map((cat, i) => (
+                           <div key={i} style={{ 
+                             display: 'flex', 
+                             justifyContent: 'space-between', 
+                             alignItems: 'center', 
+                             padding: '6px 8px', 
+                             cursor: 'pointer',
+                             borderRadius: '6px',
+                           }} 
+                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                           onClick={() => navigate(`/app/issues?category=${encodeURIComponent(cat.param)}`)}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                               <div style={{ background: cat.bg, width: '26px', height: '26px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: cat.color }}>
+                                 <Icon source={cat.icon} />
+                               </div>
+                               <Text as="span" fontWeight="bold" variant="bodyMd">{cat.name}</Text>
                              </div>
-                             <Text as="span" fontWeight="medium" variant="bodySm">{cat.name}</Text>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '90px', justifyContent: 'space-between' }}>
+                               <Text as="span" tone="subdued" variant="bodySm">{cat.data.issues} issue{cat.data.issues !== 1 ? 's' : ''}</Text>
+                               {cat.data.issues > 0 ? <Icon source={AlertTriangleIcon} tone="warning" /> : <Icon source={CheckCircleIcon} tone="success" />}
+                             </div>
                            </div>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '90px', justifyContent: 'space-between' }}>
-                             <Text as="span" tone="subdued" variant="bodySm">{cat.data.issues} issue{cat.data.issues !== 1 ? 's' : ''}</Text>
-                             {cat.data.issues > 0 ? <Icon source={AlertTriangleIcon} tone="warning" /> : <Icon source={CheckCircleIcon} tone="success" />}
-                           </div>
-                         </div>
-                       ))}
-                     </div>
-                     <div style={{ marginTop: '8px', textAlign: 'center' }}>
-                       <Button variant="plain" size="micro" onClick={() => navigate('/app/issues')}>View Recommendations →</Button>
-                     </div>
+                         ))}
+                       </div>
+                    </div>
                   </div>
+                </div>
+                {/* Full Width Footer */}
+                <div style={{ borderTop: '1px solid #f4f6f8', padding: '12px', textAlign: 'center', background: '#fafbfb', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', cursor: 'pointer' }} onClick={() => navigate('/app/issues')}>
+                  <span style={{ color: '#2c6ecb', fontSize: '13px', fontWeight: 600 }}>View Recommendations →</span>
                 </div>
               </CardContainer>
 
-              {/* METRICS ROW */}
-              <CardContainer padding="24px 0">
-                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                   <div style={{ flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                      <div style={{ background: '#f0f4f8', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#458FFF', marginBottom: '4px' }}>
-                         <Icon source={LinkIcon} />
+              {/* METRICS ROW (Exact Reference Layout) */}
+              <CardContainer padding="24px 32px">
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                   
+                   {/* Col 1 */}
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ background: '#eef3fa', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
+                         <div style={{ transform: 'scale(1.5)' }}><Icon source={ProductIcon} /></div>
                       </div>
-                      <Text as="h3" variant="headingXl" fontWeight="bold">{latestScan?.totalProductsChecked ?? 0}</Text>
-                      <Text as="p" tone="subdued" variant="bodySm">Products Audited</Text>
-                      <div style={{ marginTop: '2px' }}>
-                         <div onClick={() => navigate('/app/issues')} style={{cursor: 'pointer', color: '#2c6ecb', fontSize: '12px', fontWeight: 500}}>View Details →</div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                         <Text as="h3" variant="heading2xl" fontWeight="bold">{latestScan?.totalProductsChecked ?? 0}</Text>
+                         <Text as="p" tone="subdued" variant="bodySm">Products Audited</Text>
+                         <div style={{ marginTop: '4px' }}>
+                            <div onClick={() => navigate('/app/issues')} style={{cursor: 'pointer', color: '#2c6ecb', fontSize: '12px', fontWeight: 600}}>View Details →</div>
+                         </div>
                       </div>
                    </div>
                    
-                   <div style={{ width: '1px', height: '70px', background: '#f4f6f8' }}></div>
+                   <div style={{ width: '1px', height: '60px', background: '#e1e3e5' }}></div>
                    
-                   <div style={{ flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                      <div style={{ background: '#ffeded', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF4A4A', marginBottom: '4px' }}>
-                         <Icon source={AlertCircleIcon} />
+                   {/* Col 2 */}
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ background: '#ffeded', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d82c0d' }}>
+                         <div style={{ transform: 'scale(1.5)' }}><Icon source={AlertCircleIcon} /></div>
                       </div>
-                      <Text as="h3" variant="headingXl" fontWeight="bold" tone="critical">{latestScan?.totalIssuesFound ?? 0}</Text>
-                      <Text as="p" tone="subdued" variant="bodySm">Active Defects</Text>
-                      <div style={{ marginTop: '2px' }}>
-                         <div onClick={() => navigate('/app/issues')} style={{cursor: 'pointer', color: '#2c6ecb', fontSize: '12px', fontWeight: 500}}>View Issues →</div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                         <Text as="h3" variant="heading2xl" fontWeight="bold" tone="critical">{latestScan?.totalIssuesFound ?? 0}</Text>
+                         <Text as="p" tone="subdued" variant="bodySm">Active Defects</Text>
+                         <div style={{ marginTop: '4px' }}>
+                            <div onClick={() => navigate('/app/issues')} style={{cursor: 'pointer', color: '#2c6ecb', fontSize: '12px', fontWeight: 600}}>View Issues →</div>
+                         </div>
                       </div>
                    </div>
 
-                   <div style={{ width: '1px', height: '70px', background: '#f4f6f8' }}></div>
+                   <div style={{ width: '1px', height: '60px', background: '#e1e3e5' }}></div>
                    
-                   <div style={{ flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                      <div style={{ background: '#e6f4ea', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#36C870', marginBottom: '4px' }}>
-                         <Icon source={OrderIcon} />
+                   {/* Col 3 */}
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ background: '#e6f4ea', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#008060' }}>
+                         <div style={{ transform: 'scale(1.5)' }}><Icon source={OrderIcon} /></div>
                       </div>
-                      <Text as="h3" variant="headingXl" fontWeight="bold">{totalScans}</Text>
-                      <Text as="p" tone="subdued" variant="bodySm">Total Audits Run</Text>
-                      <div style={{ marginTop: '2px' }}>
-                         <div onClick={() => navigate('/app/scans')} style={{cursor: 'pointer', color: '#2c6ecb', fontSize: '12px', fontWeight: 500}}>View History →</div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                         <Text as="h3" variant="heading2xl" fontWeight="bold">{totalScans}</Text>
+                         <Text as="p" tone="subdued" variant="bodySm">Total Audits Run</Text>
+                         <div style={{ marginTop: '4px' }}>
+                            <div onClick={() => navigate('/app/scans')} style={{cursor: 'pointer', color: '#2c6ecb', fontSize: '12px', fontWeight: 600}}>View History →</div>
+                         </div>
                       </div>
                    </div>
+
                  </div>
               </CardContainer>
 
@@ -378,19 +410,19 @@ export default function Dashboard() {
                           display: 'flex', 
                           justifyContent: 'space-between', 
                           alignItems: 'center', 
-                          padding: '12px 0', 
+                          padding: '16px 0', 
                           borderBottom: i < recentIssues.length - 1 ? '1px solid #f4f6f8' : 'none' 
                         }}>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <div style={{ background: '#f0f4f8', padding: '6px', borderRadius: '6px', color: '#2c6ecb' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                              <div style={{ background: '#f4f6f8', padding: '8px', borderRadius: '8px', color: '#2c6ecb' }}>
                                  <Icon source={ImageIcon} />
                               </div>
-                              <div>
-                                 <Text as="p" variant="bodySm" fontWeight="semibold">{issue.label}</Text>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                 <Text as="p" variant="bodySm" fontWeight="bold">{issue.label.toUpperCase()}</Text>
                                  <Text as="p" variant="bodySm" tone="subdued">{issue.count} product{issue.count !== 1 ? 's' : ''} affected</Text>
                               </div>
                            </div>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '24px', minWidth: '120px', justifyContent: 'space-between' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '32px', minWidth: '130px', justifyContent: 'space-between' }}>
                               <Badge tone={getSeverityTone(issue.severity)}>
                                 {issue.severity === "HIGH" ? "Critical" : issue.severity === "MEDIUM" ? "Warning" : "High"}
                               </Badge>
@@ -398,8 +430,8 @@ export default function Dashboard() {
                            </div>
                         </div>
                       ))}
-                      <div style={{ marginTop: '12px', textAlign: 'center', borderTop: '1px solid #f4f6f8', paddingTop: '12px', cursor: 'pointer' }} onClick={() => navigate('/app/issues')}>
-                         <Text as="span" variant="bodySm" fontWeight="semibold">View All Issues ⌄</Text>
+                      <div style={{ marginTop: '8px', textAlign: 'center', cursor: 'pointer' }} onClick={() => navigate('/app/issues')}>
+                         <Text as="span" variant="bodySm" fontWeight="bold" tone="subdued">View All Issues ⌄</Text>
                       </div>
                    </div>
                  )}
@@ -414,15 +446,15 @@ export default function Dashboard() {
               
               {/* STORE & PLAN STATUS */}
               <CardContainer padding="20px">
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid #f4f6f8' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid #f4f6f8' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                        <Text as="h2" variant="headingSm" fontWeight="bold">Store & Plan Status</Text>
-                       <span style={{ background: '#e6f0ff', color: '#2c6ecb', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>PRO</span>
+                       <span style={{ background: '#e6f0ff', color: '#2c6ecb', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>PRO</span>
                     </div>
                     <Icon source={MenuIcon} tone="subdued" />
                  </div>
 
-                 <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                 <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                      <Text as="p" variant="bodySm" tone="subdued">Store</Text>
                      <Text as="p" variant="bodySm" fontWeight="bold">{store.name || shop.split(".")[0]}</Text>
@@ -433,16 +465,16 @@ export default function Dashboard() {
                      <span style={{color: '#2c6ecb', fontWeight: 'bold', fontSize: '13px'}}>PRO</span>
                    </div>
 
-                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <Text as="p" variant="bodySm" tone="subdued">Scans Used</Text>
                        <Text as="p" variant="bodySm" fontWeight="bold">{scansUsed} / {scanLimit}</Text>
                      </div>
-                     <div style={{ width: '100%', height: '3px', background: '#e1e3e5', borderRadius: '1.5px', overflow: 'hidden', marginTop: '4px' }}>
-                       <div style={{ width: `${scanPercent}%`, height: '100%', background: scanPercent >= 100 ? '#FF4A4A' : '#2c6ecb' }}></div>
+                     <div style={{ width: '100%', height: '4px', background: '#f4f6f8', borderRadius: '2px', overflow: 'hidden' }}>
+                       <div style={{ width: `${scanPercent}%`, height: '100%', background: scanPercent >= 100 ? '#FF4A4A' : '#2c6ecb', borderRadius: '2px' }}></div>
                      </div>
                      <div style={{ textAlign: 'right' }}>
-                       <Text as="span" variant="bodySm" tone="subdued" fontWeight="medium">{scanPercent}%</Text>
+                       <span style={{ fontSize: '11px', color: '#6d7175', fontWeight: 'bold' }}>{scanPercent}%</span>
                      </div>
                    </div>
 
@@ -457,22 +489,23 @@ export default function Dashboard() {
                    </div>
                  </div>
 
-                 <div style={{ marginTop: '20px' }}>
+                 <div style={{ marginTop: '24px' }}>
                     <button 
                       onClick={() => navigate("/app/billing")}
                       style={{
                         width: '100%',
                         background: '#ffffff',
                         border: '1px solid #c9cccf',
-                        padding: '6px 12px',
-                        borderRadius: '4px',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
                         fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '6px',
-                        fontSize: '13px'
+                        fontSize: '13px',
+                        boxShadow: '0 1px 0 rgba(0,0,0,0.05)'
                       }}>
                       <Icon source={CartIcon} />
                       Manage Billing
@@ -487,52 +520,52 @@ export default function Dashboard() {
                  </div>
                  
                  <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '10px 0', borderBottom: '1px solid #f4f6f8' }} onClick={() => navigate('/app/issues')}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ background: '#f0f4f8', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '12px 0', borderBottom: '1px solid #f4f6f8' }} onClick={() => navigate('/app/issues')}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ background: '#f0f4f8', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
                              <Icon source={SearchIcon} />
                           </div>
-                          <div>
-                             <Text as="p" variant="bodySm" fontWeight="semibold">View All Product Issues</Text>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                             <Text as="p" variant="bodySm" fontWeight="bold">View All Product Issues</Text>
                              <Text as="p" variant="bodySm" tone="subdued">See all detected issues across your store</Text>
                           </div>
                        </div>
                        <Icon source={ChevronRightIcon} tone="subdued" />
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '10px 0', borderBottom: '1px solid #f4f6f8' }} onClick={() => navigate('/app/scans')}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ background: '#f0f4f8', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '12px 0', borderBottom: '1px solid #f4f6f8' }} onClick={() => navigate('/app/scans')}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ background: '#f0f4f8', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
                              <Icon source={ClockIcon} />
                           </div>
-                          <div>
-                             <Text as="p" variant="bodySm" fontWeight="semibold">Scan History & Logs</Text>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                             <Text as="p" variant="bodySm" fontWeight="bold">Scan History & Logs</Text>
                              <Text as="p" variant="bodySm" tone="subdued">Check past scan results and logs</Text>
                           </div>
                        </div>
                        <Icon source={ChevronRightIcon} tone="subdued" />
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '10px 0', borderBottom: '1px solid #f4f6f8' }} onClick={() => navigate('/app/settings')}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ background: '#f0f4f8', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '12px 0', borderBottom: '1px solid #f4f6f8' }} onClick={() => navigate('/app/settings')}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ background: '#f0f4f8', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
                              <Icon source={SettingsIcon} />
                           </div>
-                          <div>
-                             <Text as="p" variant="bodySm" fontWeight="semibold">App Settings</Text>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                             <Text as="p" variant="bodySm" fontWeight="bold">App Settings</Text>
                              <Text as="p" variant="bodySm" tone="subdued">Configure scans and notifications</Text>
                           </div>
                        </div>
                        <Icon source={ChevronRightIcon} tone="subdued" />
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '10px 0' }} onClick={() => navigate('/app/help')}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ background: '#f0f4f8', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '12px 0' }} onClick={() => navigate('/app/help')}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ background: '#f0f4f8', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2c6ecb' }}>
                              <Icon source={ChatIcon} />
                           </div>
-                          <div>
-                             <Text as="p" variant="bodySm" fontWeight="semibold">Help & Support</Text>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                             <Text as="p" variant="bodySm" fontWeight="bold">Help & Support</Text>
                              <Text as="p" variant="bodySm" tone="subdued">Get help and view documentation</Text>
                           </div>
                        </div>
@@ -540,48 +573,6 @@ export default function Dashboard() {
                     </div>
                  </div>
               </CardContainer>
-
-              {/* NEW: FIX THE ISSUE PROMOTIONAL CARD */}
-              <div style={{ 
-                background: 'linear-gradient(135deg, #0e1233 0%, #1c2260 100%)', 
-                borderRadius: '12px', 
-                padding: '20px', 
-                color: '#fff',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(28, 34, 96, 0.15)'
-              }}>
-                <img 
-                   src="/images/fix-the-issue.png" 
-                   alt="Fix the Issue Graphic" 
-                   style={{ width: '60px', height: 'auto', marginBottom: '16px' }}
-                />
-                <Text as="h3" variant="headingMd" fontWeight="bold">Find the Issue. Fix It Instantly.</Text>
-                <div style={{ marginTop: '8px', marginBottom: '16px' }}>
-                   <p style={{ fontSize: '13px', lineHeight: '1.4', color: '#b3b8e0', margin: 0 }}>
-                     Every detected issue comes with a direct "Fix in Shopify Admin" link. Don't waste time searching for the broken product — click the link and fix the problem immediately.
-                   </p>
-                </div>
-                <button 
-                  onClick={() => navigate("/app/issues")}
-                  style={{
-                    background: '#ffffff',
-                    color: '#1c2260',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '4px'
-                  }}>
-                  Fix in Shopify Admin <Icon source={ChevronRightIcon} />
-                </button>
-              </div>
 
             </BlockStack>
           </Layout.Section>

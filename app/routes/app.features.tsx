@@ -98,18 +98,32 @@ export default function FeaturesPage() {
         
         {/* Highlight Feature: 1-Click Fix */}
         <Box paddingBlockEnd="400">
-          <Card background="bg-surface-magic">
-            <BlockStack gap="400" align="center" inlineAlign="center">
-              <Icon source={LinkIcon} tone="magic" />
-              <Text as="h2" variant="heading2xl" alignment="center">
-                Find the Issue. Fix It Instantly.
-              </Text>
-              <Text as="p" variant="bodyLg" alignment="center">
-                Every detected issue comes with a direct <strong>"Fix in Shopify Admin"</strong> link. 
-                Don't waste time searching for the broken product — click the link and fix the problem immediately.
-              </Text>
-            </BlockStack>
-          </Card>
+          <div style={{ 
+            background: 'linear-gradient(135deg, #0e1233 0%, #1c2260 100%)', 
+            borderRadius: '12px', 
+            padding: '32px', 
+            color: '#fff',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 4px 12px rgba(28, 34, 96, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '32px'
+          }}>
+            <div style={{ flex: 1 }}>
+              <img 
+                 src="/images/fix-the-issue.png" 
+                 alt="Fix the Issue Graphic" 
+                 style={{ width: '80px', height: 'auto', marginBottom: '24px' }}
+              />
+              <Text as="h2" variant="heading2xl" fontWeight="bold">Find the Issue. Fix It Instantly.</Text>
+              <div style={{ marginTop: '12px', marginBottom: '24px' }}>
+                 <p style={{ fontSize: '16px', lineHeight: '1.5', color: '#b3b8e0', margin: 0, maxWidth: '600px' }}>
+                   Every detected issue comes with a direct "Fix in Shopify Admin" link. Don't waste time searching for the broken product — click the link and fix the problem immediately.
+                 </p>
+              </div>
+            </div>
+          </div>
         </Box>
 
         <BlockStack gap="400">
