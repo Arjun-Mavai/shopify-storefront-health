@@ -2,9 +2,9 @@
 
 > [!NOTE]
 > **Remix is now React Router.** As of [React Router v7](https://remix.run/blog/merging-remix-and-react-router), Remix and React Router have merged.
-> 
+>
 > For new projects, use the **[Shopify App Template - React Router](https://github.com/Shopify/shopify-app-template-react-router)** instead.
-> 
+>
 > To migrate your existing Remix app, follow the **[migration guide](https://github.com/Shopify/shopify-app-template-react-router/wiki/Upgrading-from-Remix)**.
 
 This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) using the [Remix](https://remix.run) framework.
@@ -23,6 +23,7 @@ Before you begin, you'll need the following:
 2. **Shopify Partner Account**: [Create an account](https://partners.shopify.com/signup) if you don't have one.
 3. **Test Store**: Set up either a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) or a [Shopify Plus sandbox store](https://help.shopify.com/en/partners/dashboard/managing-stores/plus-sandbox-store) for testing your app.
 4. **Shopify CLI**: [Download and install](https://shopify.dev/docs/apps/tools/cli/getting-started) it if you haven't already.
+
 ```shell
 npm install -g @shopify/cli@latest
 ```
@@ -38,8 +39,6 @@ shopify app init --template=https://github.com/Shopify/shopify-app-template-remi
 ```shell
 shopify app dev
 ```
-
-
 
 Local development is powered by [the Shopify CLI](https://shopify.dev/docs/apps/tools/cli). It logs into your partners account, connects to an app, provides environment variables, updates remote config, creates a tunnel and provides commands to generate extensions.
 
@@ -91,8 +90,8 @@ The database that works best for you depends on the data your app needs and how 
 You can run your database of choice on a server yourself or host it with a SaaS company.
 Here's a short list of databases providers that provide a free tier to get started:
 
-| Database   | Type             | Hosters                                                                                                                                                                                                                               |
-| ---------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Database   | Type             | Hosters                                                                                                                                                                                                                                    |
+| ---------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | MySQL      | SQL              | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-mysql), [Planet Scale](https://planetscale.com/), [Amazon Aurora](https://aws.amazon.com/rds/aurora/), [Google Cloud SQL](https://cloud.google.com/sql/docs/mysql) |
 | PostgreSQL | SQL              | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-postgresql), [Amazon Aurora](https://aws.amazon.com/rds/aurora/), [Google Cloud SQL](https://cloud.google.com/sql/docs/postgres)                                   |
 | Redis      | Key-value        | [Digital Ocean](https://www.digitalocean.com/products/managed-databases-redis), [Amazon MemoryDB](https://aws.amazon.com/memorydb/)                                                                                                        |
@@ -182,7 +181,7 @@ Shopify apps are best when they are embedded in the Shopify Admin, which is how 
 2. Pass `isEmbeddedApp: false` to `shopifyApp()` in `./app/shopify.server.js|ts`.
 3. Change the `isEmbeddedApp` prop to `isEmbeddedApp={false}` for the `AppProvider` in `/app/routes/app.jsx|tsx`.
 4. Remove the `@shopify/app-bridge-react` dependency from [package.json](./package.json) and `vite.config.ts|js`.
-5. Remove anything imported from `@shopify/app-bridge-react`.  For example: `NavMenu`, `TitleBar` and `useAppBridge`.
+5. Remove anything imported from `@shopify/app-bridge-react`. For example: `NavMenu`, `TitleBar` and `useAppBridge`.
 
 ### OAuth goes into a loop when I change my app's scopes
 
@@ -209,9 +208,9 @@ pnpm run deploy
 
 ### My shop-specific webhook subscriptions aren't updated
 
-If you are registering webhooks in the `afterAuth` hook, using `shopify.registerWebhooks`, you may find that your subscriptions aren't being updated.  
+If you are registering webhooks in the `afterAuth` hook, using `shopify.registerWebhooks`, you may find that your subscriptions aren't being updated.
 
-Instead of using the `afterAuth` hook, the recommended approach is to declare app-specific webhooks in the `shopify.app.toml` file.  This approach is easier since Shopify will automatically update changes to webhook subscriptions every time you run `deploy` (e.g: `npm run deploy`).  Please read these guides to understand more:
+Instead of using the `afterAuth` hook, the recommended approach is to declare app-specific webhooks in the `shopify.app.toml` file. This approach is easier since Shopify will automatically update changes to webhook subscriptions every time you run `deploy` (e.g: `npm run deploy`). Please read these guides to understand more:
 
 1. [app-specific vs shop-specific webhooks](https://shopify.dev/docs/apps/build/webhooks/subscribe#app-specific-subscriptions)
 2. [Create a subscription tutorial](https://shopify.dev/docs/apps/build/webhooks/subscribe/get-started?framework=remix&deliveryMethod=https)
@@ -225,7 +224,7 @@ During normal development, the app won't need to re-authenticate most of the tim
 
 ### Admin created webhook failing HMAC validation
 
-Webhooks subscriptions created in the [Shopify admin](https://help.shopify.com/en/manual/orders/notifications/webhooks) will fail HMAC validation. This is because the webhook payload is not signed with your app's secret key.  There are 2 solutions:
+Webhooks subscriptions created in the [Shopify admin](https://help.shopify.com/en/manual/orders/notifications/webhooks) will fail HMAC validation. This is because the webhook payload is not signed with your app's secret key. There are 2 solutions:
 
 1. Use [app-specific webhooks](https://shopify.dev/docs/apps/build/webhooks/subscribe#app-specific-subscriptions) defined in your toml file instead (recommended)
 2. Create [webhook subscriptions](https://shopify.dev/docs/api/shopify-app-remix/v1/guide-webhooks) using the `shopifyApp` object.
@@ -311,7 +310,7 @@ You don't have to make any changes to the code in order to be able to upgrade Po
 ### "nbf" claim timestamp check failed
 
 This error will occur of the `nbf` claim timestamp check failed. This is because the JWT token is expired.
-If you  are consistently getting this error, it could be that the clock on your machine is not in sync with the server.
+If you are consistently getting this error, it could be that the clock on your machine is not in sync with the server.
 
 To fix this ensure you have enabled `Set time and date automatically` in the `Date and Time` settings on your computer.
 
@@ -350,3 +349,336 @@ This template uses [Remix](https://remix.run). The following Shopify tools are a
 - [App extensions](https://shopify.dev/docs/apps/app-extensions/list)
 - [Shopify Functions](https://shopify.dev/docs/api/functions)
 - [Getting started with internationalizing your app](https://shopify.dev/docs/apps/best-practices/internationalization/getting-started)
+
+## added by AI
+
+<!-- Haan Meri Jaan! Ye Shopify + Live Turso Cloud Database ka Full Tapori Style Documentation hai biddu! -->
+
+# 🚀 Shopify Learning App (Remix + Turso SQLite Cloud + Prisma ORM)
+
+Arey bantai! Tera Shopify Remix App live **Turso (LibSQL) Cloud SQLite Database** se 100% connect ho chuka h! Local SQLite `.db` file ka koi jhanjhat nahi! Full cloud architecture with live testing capabilities.
+
+---
+
+## 🏬 Shopify Ecosystem Clarity: Partner Dashboard vs App vs Development Store
+
+Arey biddu, kaafi logon ko confusion hota h ki Shopify Partner Dashboard par kya hota h, store kidhar h, aur app store ke andar kaise chalega. Samjho poora game detail me:
+
+### 1. Shopify Partner Dashboard (Apun Ka Control Room)
+
+- **Kya h?**: Ye developer log ke liye Shopify ka Central Command Center hai.
+- **Kaam kya karta h?**: Idhar se tu nayi **Apps** create karta h (Client ID aur Client Secret lene ke liye) aur **Development Stores** (Testing Stores) banata h.
+
+### 2. Development Store (Testing Dukan)
+
+- **Kya h?**: Partner Dashboard ke andar ek free test Shopify store hota h.
+- **Kaam kya karta h?**: As a merchant tu waha products add kar sakta h, checkout test kar sakta h, aur apni App install karke test kar sakta h.
+
+### 3. Shopify App (Apun Ki Code Base)
+
+- **Kya h?**: Ye Remix + Node.js application h jo humne build kiya h.
+- **Store ke andar kaise chalta h?**: Jab merchant store me app install karta h, toh Shopify Admin ke andar ek **iFrame** khulta h (via Shopify App Bridge). User ko lagta h app shopify ka part h, lekin background me request hamare Remix server aur **Turso Cloud DB** pe aati h!
+
+---
+
+## ⛓️ Full Architecture Chain Diagram
+
+```
++-------------------------------------------------------------------------------+
+|                           SHOPIFY PARTNER DASHBOARD                           |
+|  - App Registered: "learning-arjun-app"                                       |
+|  - Client ID: 88ff5ca15ac71a23480e1dcd4605eaad                                |
+|  - Client Secret: shpss_4ab4999ab9ed7a98b589...                               |
++---------------------------------------+---------------------------------------+
+                                        |
+                                 OAuth Credentials
+                                        v
++-------------------------------------------------------------------------------+
+|                            DEVELOPMENT STORE ADMIN                            |
+|  (e.g., test-store.myshopify.com)                                             |
+|  - Merchant Installs App                                                      |
+|  - Renders App inside Shopify Admin iFrame via Shopify App Bridge             |
++---------------------------------------+---------------------------------------+
+                                        |
+                                 GraphQL / REST API
+                                        v
++-------------------------------------------------------------------------------+
+|                         REMIX WEB SERVER (LOCAL / LIVE)                       |
+|  - Host: http://localhost:3000                                                |
+|  - Auth & Session Handling (shopify.server.ts)                                |
+|  - UI Components (Polaris UI)                                                 |
++---------------------------------------+---------------------------------------+
+                                        |
+                            Prisma Client (driverAdapters)
+                                        |
+                                        v
++-------------------------------------------------------------------------------+
+|                       TURSO CLOUD SQLITE DATABASE (LibSQL)                    |
+|  - URL: libsql://shopify-learning-arjun-gurjar.aws-ap-south-1.turso.io       |
+|  - Auth Token: eyJhbGciOiJFZERTQSIsInR5cCI6...                                |
+|  - Persists Sessions & Custom App Models                                      |
++-------------------------------------------------------------------------------+
+```
+
+---
+
+## ⚙️ Step-by-Step Configuration & Code Implementation
+
+### Step 1: Environment Variables (`.env`)
+
+Secrets set up in `.env`:
+
+```env
+# Shopify Credentials
+SHOPIFY_API_KEY="88ff5ca15ac71a23480e1dcd4605eaad"
+SHOPIFY_API_SECRET="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"
+SCOPES="write_products,read_products"
+SHOPIFY_APP_URL="http://localhost:3000"
+
+# Turso Cloud SQLite Database Credentials
+TURSO_DATABASE_URL="libsql://shopify-learning-arjun-gurjar.aws-ap-south-1.turso.io"
+TURSO_AUTH_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9..."
+```
+
+### Step 2: Prisma Schema (`prisma/schema.prisma`)
+
+`previewFeatures = ["driverAdapters"]` enabled for LibSQL integration:
+
+```prisma
+// Arey bantai! Ye apna Prisma Schema h biddu!
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.sqlite"
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model LearningTest {
+  id        String   @id @default(uuid())
+  title     String
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+}
+```
+
+### Step 3: Database Client (`app/db.server.ts`)
+
+Initialization of `@prisma/adapter-libsql` with Remix dev singleton pattern:
+
+```typescript
+// Haan meri jaan! Ye DB client setup hai - Live Turso LibSQL database ko Prisma se connect karne ka code!
+import { PrismaClient } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+
+declare global {
+  var prismaGlobal: PrismaClient | undefined;
+}
+
+const tursoUrl =
+  process.env.TURSO_DATABASE_URL ||
+  "libsql://shopify-learning-arjun-gurjar.aws-ap-south-1.turso.io";
+const tursoToken = process.env.TURSO_AUTH_TOKEN || "";
+
+const adapter = new PrismaLibSql({
+  url: tursoUrl,
+  authToken: tursoToken,
+});
+
+const prisma =
+  global.prismaGlobal ??
+  new PrismaClient({
+    adapter,
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  global.prismaGlobal = prisma;
+}
+
+export default prisma;
+```
+
+---
+
+## 🛠️ Testing Live Turso Connection
+
+To verify live database read/write without starting full Shopify CLI:
+
+```bash
+node scripts/test-turso.js
+```
+
+Output:
+
+```text
+🔥 Connecting to Turso Cloud at: libsql://shopify-learning-arjun-gurjar.aws-ap-south-1.turso.io
+🎉 Inserted record into Turso Cloud DB: { id: 'test-1785921786862', title: 'Bantai Turso Connection Test Success! 🚀', status: 'active' }
+📊 Total Records in Turso DB: 2
+🌟 ALL TURSO CLOUD DB TESTS PASSED!
+```
+
+---
+
+## 🚀 Commands to Run the App
+
+1. Install Dependencies:
+   ```bash
+   npm install
+   npm install @libsql/client @prisma/adapter-libsql
+   ```
+2. Generate Prisma Client:
+   ```bash
+   npx prisma generate
+   ```
+3. Run Development Server:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+_Bole toh, full rapchik setup ho gaya bhail! Enjoy Shopify app development!_
+
+1️⃣ Server Config:
+
+shopify.app.toml
+toml
+embedded = true
+Matlab: Shopify ko bol diya ki "Humari app standalone website nahi h, ise Admin Dashboard ke iFrame me embedded render karo!"
+
+[ignoring loop detection]
+
+# 🏛️ Shopify App Deep-Dive Architecture & Flow: 100% Basics & Crystal Clarity!
+
+Arey bantai! Tumhara har ek confusion door karne ke liye step-by-step **Shopify Architecture, Partner Dashboard Settings, aur iFrame Magic** ko visual diagrams ke saath samjho!
+
+---
+
+## 📍 1. Partner Dashboard Me Ye URL Kahan Update Hota Hai?
+
+Jab tum **`npm run dev`** chalate ho, toh Shopify CLI background me Shopify Partner API ko call karke is location par URLs update karti hai:
+
+```text
+[Shopify Partner Dashboard]
+   └── Apps
+        └── learning-arjun-app
+             └── Configuration (App Setup Tab)
+                  ├── App URL:  https://<random-id>.trycloudflare.com
+                  └── Allowed redirection URL(s): https://<random-id>.trycloudflare.com/auth/callback
+```
+
+### 💡 Iska Matlab:
+
+Jab koi merchant Admin me tumhari app icon par click karega, Shopify Partner Dashboard ki settings check karke bolta h: _"Is App ka server abhi `https://<random-id>.trycloudflare.com` par hosted h, request wahan bhejo!"_
+
+---
+
+## 🖼️ 2. App Shopify Admin Ke iFrame Me Kaise Chalti Hai? (Where Is The Code?)
+
+Apni app alag browser tab me nahi, Shopify Admin ke andar ek **Embedded iFrame** (Screen-in-Screen) ke roop me load hoti h.
+
+Iska Code **2 Jagah Wired Hai**:
+
+### 1️⃣ Server Config: [`shopify.app.toml`](file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/shopify.app.toml#L6)
+
+```toml
+embedded = true
+```
+
+- **Matlab**: Shopify ko bol diya ki _"Humari app standalone website nahi h, ise Admin Dashboard ke iFrame me embedded render karo!"_
+
+### 2️⃣ App Bridge Handshake Code: [`app/routes/app.tsx`](file:///Users/arjun/.gemini/antigravity/scratch/shopify-learning-app/app/routes/app.tsx#L16-L35)
+
+```tsx
+import { AppProvider } from "@shopify/shopify-app-remix/react";
+
+export default function App() {
+  return (
+    <AppProvider isEmbeddedApp apiKey={apiKey}>
+      <NavMenu> ... </NavMenu>
+      <Outlet />
+    </AppProvider>
+  );
+}
+```
+
+- **Matlab**: `@shopify/app-bridge-react` library iFrame ke andar parent Shopify Admin (`admin.shopify.com`) ke saath `window.postMessage` se hand-shake karti h. Isse tumhare Remix App ko Admin ke Toasts, Modals, aur Top Navigation Bar ka full control mil jata h!
+
+---
+
+## ⚡ 3. `npm run dev` Chalane Par End-to-End Kya-Kya Hota Hai? (Full Sequence Flow)
+
+Ye hai complete **6-Step Chain Diagram**:
+
+```
++-----------------------------------------------------------------------------------+
+| STEP 1: npm run dev starts in Terminal                                            |
+|   - Shopify CLI reads shopify.app.toml (Client ID: 88ff5ca15ac71a23480e1dcd46...) |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 2: Cloudflare Tunnel & Local Servers Start                                   |
+|   - Creates live Tunnel: https://abc-123.trycloudflare.com                       |
+|   - Starts Remix Vite Dev Server on http://localhost:3000                         |
+|   - Starts GraphiQL Server on http://localhost:3457                               |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 3: Auto-Update Partner Dashboard                                             |
+|   - CLI calls Partner Dashboard API -> Updates App URL to Cloudflare Tunnel       |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 4: You Press (p) or Open Admin Link                                          |
+|   - Link: https://admin.shopify.com/store/learning-store-arjun/apps/...          |
+|   - Shopify Admin opens iFrame pointing to Cloudflare Tunnel                      |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 5: Remix Server & Auth Execution                                             |
+|   - Tunnel forwards request to app/routes/app._index.tsx                          |
+|   - loader runs: `authenticate.admin(request)`                                    |
+|   - Checks/Saves Session Token in TURSO CLOUD DB (prisma.session)                 |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 6: Polaris UI Rendered                                                       |
+|   - React components render inside Admin iFrame with Green CONNECTED badge!      |
++-----------------------------------------------------------------------------------+
+```
+
+---
+
+## 🎯 Final Summary (Master Class Blueprint)
+
+1. **`npm run dev`**: Terminal local server + live Cloudflare Tunnel chalu karta hai.
+2. **`automatically_update_urls_on_dev`**: Tunnel URL ko Partner Dashboard setup tab me overwrite kar deta hai.
+3. **`embedded = true`**: App ko Shopify Admin iFrame me allow karta h.
+4. **`PrismaSessionStorage`**: OAuth session and Access Tokens ko Live Turso Cloud DB me store aur verify karta h! 🚀

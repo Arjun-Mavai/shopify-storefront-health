@@ -1,27 +1,33 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ============================================================================
+// 🏛️ SHOP HEALTH - SENIOR STAFF ENGINEER DATABASE SCHEMA
+// ============================================================================
+// Core Rule: Hum Shopify ke Products/Orders apne database me DUPLICATE NAHI karte.
+// Shopify = Single Source of Truth.
+// Apna Database = App Intelligence (Stores, Settings, Subscriptions, Scans, Issues, Activity, PaymentLogs).
+// ============================================================================
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
   provider = "sqlite"
-  url      = "file:dev.sqlite"
+  url      = "file:./dev.sqlite"
 }
 
+// ----------------------------------------------------------------------------
+// 1. SESSION TABLE (Shopify OAuth Session Storage)
+// ----------------------------------------------------------------------------
 model Session {
-  id                  String    @id
-  shop                String
-  state               String
-  isOnline            Boolean   @default(false)
-  scope               String?
-  expires             DateTime?
-  accessToken         String
-  userId              BigInt?
+  id                  String    @id // E.g. offline_learning-store-arjun.myshopify.com
+  shop                String    // Myshopify domain (e.g. learning-store-arjun.myshopify.com)
+  state               String    // OAuth state nonce security ke liye
+  isOnline            Boolean   @default(false) // Online (User session) vs Offline (Background worker)
+  scope               String?   // Granted scopes (e.g. read_products, write_products)
+  expires             DateTime? // Expiration date for online sessions
+  accessToken         String    // 🔑 THE MASTER KEY: Shopify Admin API Access Token
+  userId              BigInt?   // User ID if online token
   firstName           String?
   lastName            String?
   email               String?
@@ -31,4 +37,133 @@ model Session {
   emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+}
+
+// ----------------------------------------------------------------------------
+// 2. STORE TABLE (Merchant App Profile)
+// ----------------------------------------------------------------------------
+model Store {
+  id            String        @id @default(uuid())
+  shop          String        @unique // E.g. learning-store-arjun.myshopify.com
+  name          String?       // Store title (e.g. Arjun Shoes)
+  email         String?       // Store primary email
+  currency      String        @default("INR") // Store currency code
+  ianaTimezone  String        @default("Asia/Kolkata")
+  status        String        @default("ACTIVE") // ACTIVE | UNINSTALLED | FROZEN
+  installedAt   DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // 🔗 Relations
+  settings      Settings?
+  subscription  Subscription?
+  scans         Scan[]
+  activities    Activity[]
+  paymentLogs   PaymentLog[]
+}
+
+// ----------------------------------------------------------------------------
+// 3. SETTINGS TABLE (Store Specific App Preferences)
+// ----------------------------------------------------------------------------
+model Settings {
+  id               String   @id @default(uuid())
+  storeId          String   @unique
+  store            Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  autoScanEnabled  Boolean  @default(true) // Weekly auto scan enable/disable
+  alertEmail       String?  // Email where health alerts are sent
+  minHealthScore   Int      @default(70)   // Alert triggers if score falls below this
+  scanFrequency    String   @default("WEEKLY") // DAILY | WEEKLY | MONTHLY
+  notifyOnWebhooks Boolean  @default(true) // Instant rescan on product update webhook
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// 4. SUBSCRIPTION TABLE (SaaS Billing & Plan Limits)
+// ----------------------------------------------------------------------------
+model Subscription {
+  id                 String    @id @default(uuid())
+  storeId            String    @unique
+  store              Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  plan               String    @default("FREE") // FREE | PRO | ENTERPRISE
+  status             String    @default("ACTIVE") // ACTIVE | CANCELLED | EXPIRED | FROZEN
+  shopifyChargeId    String?   // Shopify Recurring Application Charge ID
+  monthlyScanLimit   Int       @default(10) // Plan limit (10 for Free, 1000 for Pro)
+  scansUsedThisMonth Int       @default(0)
+  currentPeriodStart DateTime  @default(now())
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// 5. PAYMENT LOG TABLE (Audit & Invoice History)
+// ----------------------------------------------------------------------------
+// Why exists: Har transaction ka complete financial record / invoice log rakhne ke liye.
+// Merchant cancel karke dobara aayega tab bhi historical billing logs intact rehte hain!
+// ----------------------------------------------------------------------------
+model PaymentLog {
+  id              String   @id @default(uuid())
+  storeId         String
+  store           Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  shopifyChargeId String?  // Shopify AppSubscription GID
+  planName        String   // Growth Pro Monthly | Enterprise Annual
+  amount          Float    // 9.99 | 99.00
+  currency        String   @default("USD")
+  status          String   // ACTIVE | CANCELLED | EXPIRED | REFUNDED
+  billingOn       DateTime @default(now())
+  periodStart     DateTime @default(now())
+  periodEnd       DateTime
+  createdAt       DateTime @default(now())
+}
+
+// ----------------------------------------------------------------------------
+// 6. SCAN TABLE (Audit Execution Record)
+// ----------------------------------------------------------------------------
+model Scan {
+  id                   String   @id @default(uuid())
+  storeId              String
+  store                Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  healthScore          Int      // 0 to 100 Score
+  totalProductsChecked Int      // Total products evaluated
+  totalIssuesFound     Int      // Number of issues detected
+  scanType             String   @default("MANUAL") // MANUAL | SCHEDULED | WEBHOOK
+  status               String   @default("COMPLETED") // PENDING | IN_PROGRESS | COMPLETED | FAILED
+  scannedAt            DateTime @default(now())
+
+  // 🔗 Relations
+  issues               Issue[]
+}
+
+// ----------------------------------------------------------------------------
+// 7. ISSUE TABLE (Individual Audit Defect)
+// ----------------------------------------------------------------------------
+model Issue {
+  id           String   @id @default(uuid())
+  scanId       String
+  scan         Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  
+  productId    String   // Shopify Product GID (e.g. gid://shopify/Product/12345)
+  productTitle String   // Product Title for quick UI display
+  issueType    String   // MISSING_IMAGE | MISSING_DESCRIPTION | MISSING_ALT | DUPLICATE_SKU | LOW_STOCK | PRICE_ZERO | DRAFT_PRODUCT | NO_TAGS
+  severity     String   // HIGH | MEDIUM | LOW
+  message      String   // User friendly Hinglish explanation
+  status       String   @default("OPEN") // OPEN | RESOLVED | IGNORED
+  createdAt    DateTime @default(now())
+}
+
+// ----------------------------------------------------------------------------
+// 8. ACTIVITY TABLE (Audit Log & System History)
+// ----------------------------------------------------------------------------
+model Activity {
+  id          String   @id @default(uuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  action      String   // SCAN_COMPLETED | SETTINGS_UPDATED | PLAN_UPGRADED | WEBHOOK_RECEIVED
+  description String // Human friendly log message
+  createdAt   DateTime @default(now())
 }

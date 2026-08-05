@@ -23,6 +23,8 @@
     "node": ">=20.19 <22 || >=22.12"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-libsql": "^7.9.1",
     "@prisma/client": "^6.2.1",
     "@remix-run/dev": "^2.16.1",
     "@remix-run/fs-routes": "^2.16.1",
@@ -37,12 +39,14 @@
     "prisma": "^6.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "resend": "^6.18.1",
     "vite-tsconfig-paths": "^5.0.1"
   },
   "devDependencies": {
     "@remix-run/eslint-config": "^2.16.1",
     "@remix-run/route-config": "^2.16.1",
     "@shopify/api-codegen-preset": "^1.1.1",
+    "@shopify/cli": "^4.6.0",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.2.0",
     "@types/react": "^18.2.31",
@@ -66,13 +70,15 @@
     "@graphql-codegen/client-preset": "4.7.0",
     "@graphql-codegen/typescript-operations": "4.5.0",
     "minimatch": "9.0.5",
-    "vite": "^6.2.2"
+    "vite": "^6.2.2",
+    "@shopify/shopify-api": "^13.1.0"
   },
   "overrides": {
     "@graphql-tools/url-loader": "8.0.16",
     "@graphql-codegen/client-preset": "4.7.0",
     "@graphql-codegen/typescript-operations": "4.5.0",
     "minimatch": "9.0.5",
-    "vite": "^6.2.2"
+    "vite": "^6.2.2",
+    "@shopify/shopify-api": "^13.1.0"
   }
 }
