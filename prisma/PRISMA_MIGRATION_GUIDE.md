@@ -54,3 +54,17 @@ npx prisma generate
 ## 🚨 3. Warning (Kabhi Mat Karna)
 - **Kabhi bhi `schema.prisma` me changes karke direct `npm run dev` mat chalana** bina uper wale steps kiye. Varna code naye columns maangega jo live DB me honge hi nahi, aur app crash ho jayegi.
 - **Prisma adapter initialization (`db.server.ts`):** `PrismaLibSql` ko directly object chahiye hota hai. Ise galti se bhi `createClient` ke andar wrap mat karna varna `URL_INVALID` error aayega. (Ye issue ab hamesha ke liye fixed hai).
+
+## 🔍 4. How to Check for DB Drift (Kya Database aur Code Sync me hain?)
+
+Agar aapko kabhi shak ho ki aapki `schema.prisma` file aur aapka live Turso database sync me nahi hain (Database Drift), to aap is command se ek "Diff" (Difference) check kar sakte ho:
+
+```bash
+npx prisma migrate diff \
+  --from-empty \
+  --to-schema-datamodel prisma/schema.prisma \
+  --script > current_schema.sql
+```
+Is command se aapka pura schema ek SQL file me nikal aayega. Fir aap use manually dekh sakte ho ki kya live database me bhi same columns available hain ya nahi.
+
+**(Pro Tip):** Hamesha `npx prisma studio` chala kar ek baar UI me check kar liya karo ki saare naye columns properly show ho rahe hain ya nahi!
